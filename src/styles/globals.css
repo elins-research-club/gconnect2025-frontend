@@ -1,26 +1,184 @@
+/* src/styles/globals.css */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"); /* Import font Poppins */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Custom scrollbar untuk horizontal scroll */
+.horizontal-scroll-container::-webkit-scrollbar {
+  height: 8px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.horizontal-scroll-container::-webkit-scrollbar-track {
+  background: #2a2a2a; /* Ganti dengan nilai hex dari background.hover */
+  border-radius: 10px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.horizontal-scroll-container::-webkit-scrollbar-thumb {
+  background: #00bfff; /* Ganti dengan nilai hex dari primary.DEFAULT */
+  border-radius: 10px;
+}
+
+.horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #008cc9; /* Ganti dengan nilai hex dari primary.dark */
+}
+
+/* Base styles untuk Dark Mode */
+html.dark {
+  background-color: #0d0d0d; /* Ganti dengan nilai hex dari background.DEFAULT */
+  color: #eaeaea; /* Ganti dengan nilai hex dari text.DEFAULT */
+}
+
+/* Override Chart.js default text color for dark mode */
+.dark canvas {
+  color: #eaeaea; /* Ganti dengan nilai hex dari text.DEFAULT */
+}
+
+/* === ANIMASI BACKGROUND LOGIN PAGE === */
+.animated-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0; /* Pastikan berada di belakang konten login card */
+}
+
+.circle {
+  position: absolute;
+  /* Sesuaikan opacity agar terlihat di background terang */
+  background: rgba(
+    0,
+    191,
+    255,
+    0.05
+  ); /* primary.DEFAULT dengan opacity yang SANGAT rendah */
+  border-radius: 50%;
+  animation: moveCircles 20s infinite linear; /* Animasi bergerak */
+}
+
+.circle-1 {
+  width: 150px;
+  height: 150px;
+  top: 10%;
+  left: -5%;
+  animation-duration: 25s;
+  /* Sesuaikan opacity agar terlihat di background terang */
+  background: rgba(
+    147,
+    51,
+    234,
+    0.05
+  ); /* secondary.DEFAULT dengan opacity yang SANGAT rendah */
+}
+.circle-2 {
+  width: 100px;
+  height: 100px;
+  top: 60%;
+  right: -5%;
+  animation-duration: 20s;
+  animation-delay: 2s;
+}
+.circle-3 {
+  width: 80px;
+  height: 80px;
+  bottom: 5%;
+  left: 15%;
+  animation-duration: 30s;
+  animation-delay: 5s;
+}
+.circle-4 {
+  width: 120px;
+  height: 120px;
+  top: 20%;
+  right: 10%;
+  animation-duration: 22s;
+}
+.circle-5 {
+  width: 90px;
+  height: 90px;
+  bottom: 20%;
+  left: -10%;
+  animation-duration: 28s;
+  animation-delay: 3s;
+  /* Sesuaikan opacity */
+  background: rgba(0, 191, 255, 0.04);
+}
+.circle-6 {
+  width: 180px;
+  height: 180px;
+  top: -10%;
+  right: 20%;
+  animation-duration: 35s;
+  animation-delay: 1s;
+  /* Sesuaikan opacity */
+  background: rgba(147, 51, 234, 0.04);
+}
+
+@keyframes moveCircles {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translate(50px, 100px) scale(1.1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(100px, 0px) scale(1.2);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translate(50px, -100px) scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* === AKHIR ANIMASI BACKGROUND === */
+
+/* Custom styles for range slider (for LightsControlPage) */
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary-DEFAULT); /* Mengambil warna dari root */
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--color-background-card); /* Border kecil */
+  transition: background 0.15s ease-in-out;
+}
+
+.range-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary-DEFAULT);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--color-background-card);
+  transition: background 0.15s ease-in-out;
+}
+
+.range-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  background: var(--color-background-border);
+  border-radius: 10px;
+}
+
+.range-slider::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  background: var(--color-background-border);
+  border-radius: 10px;
+}
+
+/* Definisi variabel CSS untuk warna */
+:root {
+  --color-primary-DEFAULT: #00bfff; /* Sesuaikan dengan primary.DEFAULT di tailwind.config.js */
+  --color-background-hover: #2a2a2a; /* Sesuaikan dengan background.hover */
+  --color-background-border: #3a3a3a; /* Sesuaikan dengan background.border */
+  --color-background-card: #1a1a1a; /* Sesuaikan dengan background.card */
 }
