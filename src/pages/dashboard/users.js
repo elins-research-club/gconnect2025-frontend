@@ -33,17 +33,17 @@ export default function UserManagementPage() {
 
   return (
     <Layout title="Manajemen User">
-      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 animate-fadeInUp">
+      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 ">
         Manajemen Pengguna
       </h1>
 
       {message && (
-        <div className="bg-success/20 text-success p-4 rounded-lg mb-6 border animate-pulse">
+        <div className="bg-success/20 text-success p-4 rounded-lg mb-6 border ">
           {message}
         </div>
       )}
 
-      <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border animate-fadeInUp">
+      <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border ">
         <div className="flex justify-between items-center mb-6 border-b border-background-border pb-3">
           <h2 className="text-2xl font-semibold text-text-light">
             Daftar Pengguna

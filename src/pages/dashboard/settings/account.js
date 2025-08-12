@@ -1,79 +1,91 @@
 // src/pages/dashboard/settings/account.js
 import Layout from "../../../components/common/Layout";
 import { useState } from "react";
+import { User, KeyRound, CheckCircle, AlertTriangle } from "lucide-react";
 
 export default function AccountSettingsPage() {
   const [name, setName] = useState("John Doe");
   const [email, setEmail] = useState("john.doe@example.com");
   const [password, setPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
-  const [message, setMessage] = useState(""); // Untuk notifikasi sukses/error
+  const [message, setMessage] = useState(""); // For success/error notifications
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleProfileUpdate = (e) => {
     e.preventDefault();
     setMessage("");
-    // Logika dummy untuk update profil
+    setIsSuccess(false);
+    // Dummy logic for profile update
     console.log("Update Profile:", { name, email });
     setMessage("Profil berhasil diperbarui!");
-    // Di sini Anda akan memanggil API backend untuk update profil
+    setIsSuccess(true);
+    // Here you would call a backend API to update the profile
   };
 
   const handleChangePassword = (e) => {
     e.preventDefault();
     setMessage("");
-    // Logika dummy untuk ganti password
+    setIsSuccess(false);
+    // Dummy logic for password change
     if (currentPassword === "password123" && password.length >= 6) {
-      // Contoh validasi dummy
+      // Example of dummy validation
       console.log("Change Password:", {
         currentPassword,
         newPassword: password,
       });
       setMessage("Password berhasil diubah!");
+      setIsSuccess(true);
       setPassword("");
       setCurrentPassword("");
     } else {
       setMessage(
         "Gagal mengubah password. Pastikan password lama benar dan password baru minimal 6 karakter."
       );
+      setIsSuccess(false);
     }
-    // Di sini Anda akan memanggil API backend untuk ganti password
+    // Here you would call a backend API to change the password
   };
 
   return (
     <Layout title="Pengaturan Akun">
-      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 animate-fadeInUp">
+      <h1 className="text-3xl font-extrabold text-gray-800 mb-8 font-calistoga">
         Pengaturan Akun
       </h1>
 
       {message && (
         <div
-          className={`p-4 rounded-lg mb-6 ${
-            message.includes("berhasil")
-              ? "bg-success/20 text-success"
-              : "bg-error/20 text-error"
-          } border animate-pulse`}
+          className={`flex items-center p-4 mb-6 rounded-lg shadow-md transition-all duration-300 ${
+            isSuccess
+              ? "bg-green-100 text-green-700"
+              : "bg-rose-100 text-rose-700"
+          }`}
         >
-          {message}
+          {isSuccess ? (
+            <CheckCircle className="w-5 h-5 mr-3" />
+          ) : (
+            <AlertTriangle className="w-5 h-5 mr-3" />
+          )}
+          <span className="font-semibold">{message}</span>
         </div>
       )}
 
-      {/* Bagian Update Profil */}
-      <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border mb-8 animate-fadeInUp">
-        <h2 className="text-2xl font-semibold mb-6 text-text-light border-b border-background-border pb-3">
+      {/* Profile Update Section */}
+      <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 mb-8 ">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 font-calistoga border-b border-gray-200 pb-3">
           Informasi Profil
         </h2>
         <form onSubmit={handleProfileUpdate}>
           <div className="mb-4">
             <label
               htmlFor="name"
-              className="block text-text text-sm font-medium mb-2"
+              className="block text-gray-700 text-sm font-medium mb-2"
             >
               Nama Lengkap
             </label>
             <input
               type="text"
               id="name"
-              className="w-full p-3 rounded-md bg-background-hover border border-background-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
@@ -81,44 +93,44 @@ export default function AccountSettingsPage() {
           <div className="mb-6">
             <label
               htmlFor="email"
-              className="block text-text text-sm font-medium mb-2"
+              className="block text-gray-700 text-sm font-medium mb-2"
             >
               Email
             </label>
             <input
               type="email"
               id="email"
-              className="w-full p-3 rounded-md bg-background-hover border border-background-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <button
             type="submit"
-            className="bg-primary hover:bg-primary-dark text-text-light font-bold py-2 px-5 rounded-lg transition-colors duration-200 shadow-md"
+            className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center transform hover:scale-[1.02]"
           >
-            Perbarui Profil
+            <User className="mr-2 w-5 h-5" /> Perbarui Profil
           </button>
         </form>
       </div>
 
-      {/* Bagian Ganti Password */}
-      <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border animate-fadeInUp">
-        <h2 className="text-2xl font-semibold mb-6 text-text-light border-b border-background-border pb-3">
+      {/* Change Password Section */}
+      <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 font-calistoga border-b border-gray-200 pb-3">
           Ganti Password
         </h2>
         <form onSubmit={handleChangePassword}>
           <div className="mb-4">
             <label
               htmlFor="currentPassword"
-              className="block text-text text-sm font-medium mb-2"
+              className="block text-gray-700 text-sm font-medium mb-2"
             >
               Password Saat Ini
             </label>
             <input
               type="password"
               id="currentPassword"
-              className="w-full p-3 rounded-md bg-background-hover border border-background-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
             />
@@ -126,23 +138,23 @@ export default function AccountSettingsPage() {
           <div className="mb-6">
             <label
               htmlFor="newPassword"
-              className="block text-text text-sm font-medium mb-2"
+              className="block text-gray-700 text-sm font-medium mb-2"
             >
               Password Baru
             </label>
             <input
               type="password"
               id="newPassword"
-              className="w-full p-3 rounded-md bg-background-hover border border-background-border text-text focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button
             type="submit"
-            className="bg-secondary hover:bg-purple-800 text-text-light font-bold py-2 px-5 rounded-lg transition-colors duration-200 shadow-md"
+            className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 shadow-md flex items-center justify-center transform hover:scale-[1.02]"
           >
-            Ubah Password
+            <KeyRound className="mr-2 w-5 h-5" /> Ubah Password
           </button>
         </form>
       </div>

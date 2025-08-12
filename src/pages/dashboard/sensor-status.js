@@ -6,7 +6,7 @@ export default function SensorStatusPage() {
   const sensorStatuses = [
     {
       id: 1,
-      name: "Suhu Udara",
+      name: "Air Temperature",
       status: "Online",
       lastReport: "Baru saja",
       health: "Normal",
@@ -14,7 +14,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 2,
-      name: "Kelembapan Udara",
+      name: "Air Humidity",
       status: "Online",
       lastReport: "1 menit lalu",
       health: "Normal",
@@ -22,7 +22,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 3,
-      name: "Kelembapan Tanah",
+      name: "Soil Moisture",
       status: "Online",
       lastReport: "5 menit lalu",
       health: "Perlu Kalibrasi",
@@ -30,7 +30,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 4,
-      name: "Kecepatan Angin",
+      name: "Wind Speed",
       status: "Offline",
       lastReport: "1 jam lalu",
       health: "Tidak Terhubung",
@@ -38,7 +38,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 5,
-      name: "Deteksi Hujan",
+      name: "Rain Detection",
       status: "Online",
       lastReport: "Baru saja",
       health: "Normal",
@@ -46,70 +46,84 @@ export default function SensorStatusPage() {
     },
   ];
 
+  const getHealthColor = (health) => {
+    switch (health) {
+      case "Normal":
+        return "text-green-500";
+      case "Perlu Kalibrasi":
+        return "text-yellow-500";
+      case "Tidak Terhubung":
+        return "text-rose-500";
+      default:
+        return "text-gray-500";
+    }
+  };
+
   return (
     <Layout title="Status Sensor">
-      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 animate-fadeInUp">
+      <h1 className="text-3xl font-extrabold mb-8 font-calistoga">
         Status Sensor
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {sensorStatuses.map((sensor) => (
           <div
             key={sensor.id}
-            className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border animate-fadeInUp"
+            className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 flex flex-col justify-between transition-transform duration-200 hover:scale-[1.02]"
           >
-            <h2 className="text-xl font-semibold mb-3 text-text-light flex items-center">
-              {sensor.status === "Online" && (
-                <CheckCircle className="text-success mr-2" size={20} />
-              )}
-              {sensor.status === "Offline" && (
-                <Bug className="text-error mr-2" size={20} />
-              )}
-              {sensor.status === "Online" && sensor.health !== "Normal" && (
-                <Info className="text-warning mr-2" size={20} />
-              )}
-              {sensor.name}
-            </h2>
-            <p className="text-text-dark text-sm mb-2">
-              Status:{" "}
-              <span
-                className={`font-medium ${
-                  sensor.status === "Online" ? "text-success" : "text-error"
-                }`}
-              >
-                {sensor.status}
-              </span>
-            </p>
-            <p className="text-text-dark text-sm mb-2">
-              Terakhir Lapor:{" "}
-              <span className="text-text">{sensor.lastReport}</span>
-            </p>
-            <p className="text-text-dark text-sm mb-4">
-              Kondisi:{" "}
-              <span
-                className={`font-medium ${
-                  sensor.health === "Normal"
-                    ? "text-success"
-                    : sensor.health === "Perlu Kalibrasi"
-                    ? "text-warning"
-                    : "text-error"
-                }`}
-              >
-                {sensor.health}
-              </span>
-            </p>
+            <div>
+              <h2 className="text-xl font-semibold mb-3 text-gray-800 flex items-center">
+                {sensor.status === "Online" && sensor.health === "Normal" && (
+                  <CheckCircle className="text-green-500 mr-2" size={20} />
+                )}
+                {sensor.status === "Online" && sensor.health !== "Normal" && (
+                  <Info className="text-yellow-500 mr-2" size={20} />
+                )}
+                {sensor.status === "Offline" && (
+                  <Bug className="text-rose-500 mr-2" size={20} />
+                )}
+                {sensor.name}
+              </h2>
+              <p className="text-gray-500 text-sm mb-1.5">
+                Status:{" "}
+                <span
+                  className={`font-medium ${
+                    sensor.status === "Online"
+                      ? "text-green-500"
+                      : "text-rose-500"
+                  }`}
+                >
+                  {sensor.status}
+                </span>
+              </p>
+              <p className="text-gray-500 text-sm mb-1.5">
+                Terakhir Lapor:{" "}
+                <span className="text-gray-700 font-medium">
+                  {sensor.lastReport}
+                </span>
+              </p>
+              <p className="text-gray-500 text-sm mb-4">
+                Kondisi:{" "}
+                <span
+                  className={`font-medium ${getHealthColor(sensor.health)}`}
+                >
+                  {sensor.health}
+                </span>
+              </p>
+            </div>
 
             {sensor.issues.length > 0 && (
-              <div className="mt-4 p-3 bg-error/10 text-error rounded-md border border-error">
+              <div className="mt-2 p-3 bg-gray-100 text-gray-700 rounded-lg">
                 <p className="font-semibold mb-1">Masalah Ditemukan:</p>
-                <ul className="list-disc list-inside text-sm">
+                <ul className="list-disc list-inside text-sm pl-2">
                   {sensor.issues.map((issue, idx) => (
                     <li key={idx}>{issue}</li>
                   ))}
                 </ul>
               </div>
             )}
-            <button className="mt-4 w-full bg-primary hover:bg-primary-dark text-text-light font-bold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md">
+
+            <button className="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md">
               Detail Laporan
             </button>
           </div>

@@ -1,4 +1,4 @@
-// src/components/common/Sidebar.js
+// components/common/Sidebar.js
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -6,115 +6,197 @@ import {
   Home,
   Settings,
   History,
-  Lightbulb,
   Thermometer,
+  Menu,
   Sliders,
-  Users,
-  Mail,
-  Sun,
-  Moon,
-} from "lucide-react"; // Pastikan semua ikon ini diimpor
+  X,
+} from "lucide-react";
 
-const Sidebar = () => {
+// The GConnectIcon component has been removed as requested.
+
+const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
   const router = useRouter();
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    if (
-      localStorage.theme === "dark" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    ) {
-      document.documentElement.classList.add("dark");
-      setIsDarkMode(true);
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.theme = "light";
-      setIsDarkMode(false);
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.theme = "light";
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.theme = "dark";
-    }
-    setIsDarkMode(!isDarkMode);
-  };
 
   const navItems = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
+    { name: "Threshold", href: "/dashboard/thresholds", icon: Sliders },
     {
-      name: "Pengaturan Akun",
+      name: "Account Settings",
       href: "/dashboard/settings/account",
       icon: Settings,
-    }, // Path baru
-    { name: "Histori Data", href: "/dashboard/history", icon: History }, // Path baru
-    { name: "Kontrol Lampu", href: "/dashboard/lights", icon: Lightbulb }, // Path baru
+    },
+    { name: "Data History", href: "/dashboard/history", icon: History },
     {
-      name: "Status Sensor",
+      name: "Sensor Status",
       href: "/dashboard/sensor-status",
       icon: Thermometer,
-    }, // Path baru
-    {
-      name: "Pengaturan Threshold",
-      href: "/dashboard/thresholds",
-      icon: Sliders,
-    }, // Path baru
-    { name: "Manajemen User", href: "/dashboard/users", icon: Users }, // Path baru
-    { name: "Kontak CS", href: "/dashboard/contact", icon: Mail }, // Path baru
+    },
   ];
 
+  // Close sidebar when navigating on mobile
+  const handleLinkClick = () => {
+    if (isMobile) {
+      toggleSidebar();
+    }
+  };
+
   return (
-    <div className="w-64 bg-background-card text-text p-6 flex flex-col min-h-screen shadow-2xl border-r border-background-border">
-      <div className="text-3xl font-extrabold mb-10 text-primary text-center tracking-wide">
-        G-Connect
+    <div
+      className={`bg-white text-gray-800 flex flex-col min-h-screen shadow-lg border-r border-gray-200 transition-all duration-300 ease-in-out transform ${
+        isCollapsed && !isMobile ? "w-16" : "w-56" // Reduced from w-20 and w-64
+      } ${isMobile ? "h-screen" : ""}`}
+    >
+      {/* Header with improved animations */}
+      <div
+        className={`flex items-center transition-all duration-300 ease-in-out ${
+          isMobile
+            ? "py-4 px-4 border-b border-gray-200"
+            : `mb-8 py-4 ${isCollapsed ? "px-4" : "px-4"}`
+        } ${isCollapsed && !isMobile ? "justify-start" : "justify-between"}`}
+      >
+        {/* The G-Connect title is now only displayed when the sidebar is not collapsed */}
+        {!isCollapsed && (
+          <div className="text-xl font-extrabold text-gray-900 tracking-wide transition-all duration-300 transform hover:scale-105">
+            G-Connect
+          </div>
+        )}
+        <button
+          onClick={toggleSidebar}
+          className={`p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 transition-all duration-300 hover:scale-110 transform`}
+        >
+          {isMobile ? (
+            <X className="w-4 h-4 transition-transform duration-300" />
+          ) : (
+            <Menu
+              className={`w-4 h-4 transition-transform duration-300 ${
+                isCollapsed ? "rotate-180" : ""
+              }`}
+            />
+          )}
+        </button>
       </div>
-      <nav className="flex-1 space-y-3">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              // Menggunakan `startsWith` untuk aktifkan link parent seperti /dashboard/settings/*
-              className={`flex items-center p-3 rounded-lg text-lg font-medium transition-colors duration-200 group
-                ${
-                  router.pathname.startsWith(item.href) &&
-                  item.href !== "/dashboard" // Ini untuk sub-menu
-                    ? "bg-primary-dark text-text-light shadow-md"
-                    : router.pathname === item.href &&
-                      item.href === "/dashboard" // Ini khusus dashboard
-                    ? "bg-primary-dark text-text-light shadow-md"
-                    : "text-text-dark hover:bg-background-hover hover:text-text-light"
-                }`}
+
+      {/* Navigation - Expanded */}
+      {(!isCollapsed || isMobile) && (
+        <nav className="flex-1 space-y-2 px-4 transition-all duration-300">
+          {navItems.map((item, index) => {
+            const Icon = item.icon;
+            const isActive = router.pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={handleLinkClick}
+                className={`flex items-center p-3 rounded-lg font-medium transition-all duration-300 group transform hover:translate-x-1
+                  ${
+                    isActive
+                      ? "bg-indigo-100 text-indigo-600 shadow-md scale-105"
+                      : "text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:scale-102"
+                  }`}
+                style={{
+                  animationDelay: `${index * 50}ms`,
+                }}
+              >
+                <Icon className="w-5 h-5 mr-3 transition-all duration-300 group-hover:scale-110 flex-shrink-0" />
+                <span className="text-base transition-all duration-300">
+                  {item.name}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+
+      {/* Collapsed Navigation for Desktop */}
+      {isCollapsed && !isMobile && (
+        <nav className="flex-1 space-y-2 px-2 transition-all duration-300">
+          {navItems.map((item, index) => {
+            const Icon = item.icon;
+            const isActive = router.pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center justify-center p-3 rounded-lg font-medium transition-all duration-300 group relative transform hover:scale-110
+                  ${
+                    isActive
+                      ? "bg-indigo-100 text-indigo-600 shadow-md"
+                      : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"
+                  }`}
+                title={item.name}
+                style={{
+                  animationDelay: `${index * 50}ms`,
+                }}
+              >
+                <Icon className="w-5 h-5 transition-all duration-300 group-hover:scale-125" />
+
+                {/* Tooltip with improved animations */}
+                <div className="absolute left-full ml-3 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-50 transform scale-90 group-hover:scale-100 pointer-events-none">
+                  {item.name}
+                  {/* Arrow */}
+                  <div className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-1 border-4 border-transparent border-r-gray-800"></div>
+                </div>
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+
+      {/* Logout button - Expanded */}
+      {(!isCollapsed || isMobile) && (
+        <div className="mt-auto p-4 border-t border-gray-200">
+          <button
+            onClick={() => {
+              router.push("/auth/login");
+            }}
+            className="w-full flex items-center justify-center p-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-md"
+          >
+            <svg
+              className="w-4 h-4 mr-2 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <Icon className="mr-3 w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="mt-auto pt-6 border-t border-background-border">
-        <button
-          onClick={toggleDarkMode}
-          className="w-full flex items-center justify-center p-3 rounded-md bg-background-hover hover:bg-background-border text-text-light font-medium transition-colors duration-200 mb-2"
-        >
-          {isDarkMode ? <Sun className="mr-2" /> : <Moon className="mr-2" />}
-          {isDarkMode ? "Light Mode" : "Dark Mode"}
-        </button>
-        <button
-          onClick={() => {
-            router.push("/auth/login");
-          }}
-          className="w-full flex items-center justify-center p-3 rounded-md bg-error hover:bg-red-700 text-text-light font-medium transition-colors duration-200"
-        >
-          Logout
-        </button>
-      </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            Logout
+          </button>
+        </div>
+      )}
+
+      {/* Collapsed Logout for Desktop */}
+      {isCollapsed && !isMobile && (
+        <div className="mt-auto p-2 border-t border-gray-200">
+          <button
+            onClick={() => {
+              router.push("/auth/login");
+            }}
+            className="w-full flex items-center justify-center p-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all duration-300 transform hover:scale-110 hover:shadow-md"
+            title="Logout"
+          >
+            <svg
+              className="w-4 h-4 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

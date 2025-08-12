@@ -35,23 +35,23 @@ export default function ContactPage() {
 
   return (
     <Layout title="Kontak Support">
-      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 animate-fadeInUp">
+      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 ">
         Hubungi Customer Support
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Contact Form */}
-        <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border animate-fadeInUp">
+        <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border ">
           <h2 className="text-2xl font-semibold mb-6 text-text-light border-b border-background-border pb-3">
             Kirim Pesan
           </h2>
           {submissionStatus === "success" && (
-            <div className="bg-success/20 text-success p-4 rounded-lg mb-4 border animate-pulse">
+            <div className="bg-success/20 text-success p-4 rounded-lg mb-4 border ">
               Pesan Anda berhasil terkirim! Kami akan segera menghubungi Anda.
             </div>
           )}
           {submissionStatus === "error" && (
-            <div className="bg-error/20 text-error p-4 rounded-lg mb-4 border animate-pulse">
+            <div className="bg-error/20 text-error p-4 rounded-lg mb-4 border ">
               Gagal mengirim pesan. Mohon coba lagi nanti.
             </div>
           )}
@@ -130,7 +130,7 @@ export default function ContactPage() {
         </div>
 
         {/* Contact Info */}
-        <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border animate-fadeInUp">
+        <div className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border ">
           <h2 className="text-2xl font-semibold mb-6 text-text-light border-b border-background-border pb-3">
             Informasi Kontak
           </h2>

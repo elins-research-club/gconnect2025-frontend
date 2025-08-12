@@ -69,12 +69,12 @@ export default function LightsControlPage() {
 
   return (
     <Layout title="Kontrol Lampu">
-      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 animate-fadeInUp">
+      <h1 className="text-4xl lg:text-5xl font-extrabold mb-8 text-text-light border-b-2 border-primary pb-4 ">
         Kontrol Lampu Pintar
       </h1>
 
       {message && (
-        <div className="bg-success/20 text-success p-4 rounded-lg mb-6 border animate-pulse">
+        <div className="bg-success/20 text-success p-4 rounded-lg mb-6 border ">
           {message}
         </div>
       )}
@@ -83,7 +83,7 @@ export default function LightsControlPage() {
         {lights.map((light) => (
           <div
             key={light.id}
-            className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border animate-fadeInUp"
+            className="bg-background-card p-6 rounded-lg shadow-xl border border-background-border "
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-text-light flex items-center">
