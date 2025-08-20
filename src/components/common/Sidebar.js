@@ -1,7 +1,8 @@
-// components/common/Sidebar.js
+// src/components/layout/Sidebar.js
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 import {
   Home,
   Settings,
@@ -10,21 +11,31 @@ import {
   Menu,
   Sliders,
   X,
+  LogIn,
+  LogOut,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  MessageCircle, // Menggunakan ikon untuk halaman kontak
 } from "lucide-react";
 
 // The GConnectIcon component has been removed as requested.
 
 const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
   const router = useRouter();
+  const { isAuthenticated, logout, user } = useAuth();
 
-  const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: Home },
+  const handleLogout = async () => {
+    await logout();
+    // Redirect ke halaman login setelah logout
+    router.push("/auth/login");
+  };
+
+  // Navigasi yang hanya akan ditampilkan jika pengguna sudah login
+  // Menu "Account Settings" telah dihapus sesuai permintaan
+  const authenticatedNavItems = [
     { name: "Threshold", href: "/dashboard/thresholds", icon: Sliders },
-    {
-      name: "Account Settings",
-      href: "/dashboard/settings/account",
-      icon: Settings,
-    },
     { name: "Data History", href: "/dashboard/history", icon: History },
     {
       name: "Sensor Status",
@@ -32,6 +43,18 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
       icon: Thermometer,
     },
   ];
+
+  // Navigasi yang selalu ditampilkan
+  // Menambahkan link ke halaman kontak baru
+  const publicNavItems = [
+    { name: "Dashboard", href: "/dashboard", icon: Home },
+    { name: "Contact", href: "/dashboard/contact", icon: MessageCircle },
+  ];
+
+  // Menggabungkan item navigasi berdasarkan status autentikasi
+  const navItems = isAuthenticated
+    ? [...publicNavItems, ...authenticatedNavItems]
+    : publicNavItems;
 
   // Close sidebar when navigating on mobile
   const handleLinkClick = () => {
@@ -43,7 +66,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
   return (
     <div
       className={`bg-white text-gray-800 flex flex-col min-h-screen shadow-lg border-r border-gray-200 transition-all duration-300 ease-in-out transform ${
-        isCollapsed && !isMobile ? "w-16" : "w-56" // Reduced from w-20 and w-64
+        isCollapsed && !isMobile ? "w-16" : "w-56"
       } ${isMobile ? "h-screen" : ""}`}
     >
       {/* Header with improved animations */}
@@ -144,59 +167,55 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
         </nav>
       )}
 
-      {/* Logout button - Expanded */}
-      {(!isCollapsed || isMobile) && (
-        <div className="mt-auto p-4 border-t border-gray-200">
-          <button
-            onClick={() => {
-              router.push("/auth/login");
-            }}
-            className="w-full flex items-center justify-center p-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-md"
-          >
-            <svg
-              className="w-4 h-4 mr-2 transition-transform duration-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+      {/* Bagian Bawah Sidebar (Login/Logout) */}
+      <div
+        className={`mt-auto pt-4 border-t border-gray-200 ${
+          isCollapsed && !isMobile ? "p-2" : "p-4"
+        }`}
+      >
+        {isAuthenticated ? (
+          <div className="space-y-2">
+            {!isCollapsed && (
+              <div className="flex items-center p-3 rounded-lg bg-gray-200 text-gray-800">
+                <User className="w-5 h-5 mr-3" />
+                <span className="text-sm font-medium truncate">
+                  {user?.email || "User"}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              className={`w-full flex items-center justify-center p-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
+                isCollapsed ? "w-12 h-12 mx-auto" : ""
+              }`}
+              title={isCollapsed ? "Logout" : ""}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              <LogOut
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isCollapsed ? "w-5 h-5" : "mr-2"
+                }`}
               />
-            </svg>
-            Logout
-          </button>
-        </div>
-      )}
-
-      {/* Collapsed Logout for Desktop */}
-      {isCollapsed && !isMobile && (
-        <div className="mt-auto p-2 border-t border-gray-200">
-          <button
-            onClick={() => {
-              router.push("/auth/login");
-            }}
-            className="w-full flex items-center justify-center p-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-all duration-300 transform hover:scale-110 hover:shadow-md"
-            title="Logout"
-          >
-            <svg
-              className="w-4 h-4 transition-transform duration-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              {!isCollapsed && <span>Logout</span>}
+            </button>
+          </div>
+        ) : (
+          <Link href="/auth/login" passHref legacyBehavior>
+            <button
+              className={`w-full flex items-center justify-center p-3 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
+                isCollapsed ? "w-12 h-12 mx-auto" : ""
+              }`}
+              title={isCollapsed ? "Login" : ""}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              <LogIn
+                className={`w-4 h-4 transition-transform duration-300 ${
+                  isCollapsed ? "w-5 h-5" : "mr-2"
+                }`}
               />
-            </svg>
-          </button>
-        </div>
-      )}
+              {!isCollapsed && <span>Login</span>}
+            </button>
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
