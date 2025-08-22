@@ -1,4 +1,4 @@
-// src/pages/dashboard/index.js - Enhanced with Fixed Alert System
+// src/pages/dashboard/index.js - Revised Alert System with Pop-ups
 import Layout from "../../components/common/Layout";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -45,6 +45,175 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+/**
+ * Mobile-style Alert Icon Notification
+ */
+const AlertIcon = ({ alert, position, onDismiss }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  useEffect(() => {
+    // Animate in
+    const timer1 = setTimeout(() => setIsVisible(true), 100);
+
+    // Auto dismiss after 4 seconds
+    const timer2 = setTimeout(() => {
+      setIsVisible(false);
+      setTimeout(() => onDismiss(alert.id), 300); // Wait for exit animation
+    }, 4000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [alert.id, onDismiss]);
+
+  const getSeverityStyles = (severity) => {
+    switch (severity) {
+      case "danger":
+        return {
+          bg: "bg-red-500",
+          border: "border-red-600",
+          shadow: "shadow-red-200",
+          pulse: "animate-pulse",
+        };
+      case "warning":
+        return {
+          bg: "bg-yellow-500",
+          border: "border-yellow-600",
+          shadow: "shadow-yellow-200",
+          pulse: "animate-bounce",
+        };
+      default:
+        return {
+          bg: "bg-blue-500",
+          border: "border-blue-600",
+          shadow: "shadow-blue-200",
+          pulse: "",
+        };
+    }
+  };
+
+  const getSensorIcon = (sensorType) => {
+    switch (sensorType) {
+      case "temperature":
+        return <Thermometer className="w-4 h-4 text-white" />;
+      case "humidity":
+        return <Droplets className="w-4 h-4 text-white" />;
+      case "soilHumidity":
+        return <Sprout className="w-4 h-4 text-white" />;
+      case "windSpeed":
+        return <Wind className="w-4 h-4 text-white" />;
+      default:
+        return <AlertTriangle className="w-4 h-4 text-white" />;
+    }
+  };
+
+  const styles = getSeverityStyles(alert.severity);
+
+  return (
+    <div
+      className="relative"
+      style={{
+        right: `${position.right}px`,
+        top: `${position.top}px`,
+      }}
+    >
+      {/* Main Alert Icon */}
+      <div
+        className={`fixed w-12 h-12 rounded-full ${styles.bg} ${
+          styles.border
+        } border-2 ${
+          styles.shadow
+        } shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 z-50 ${
+          isVisible ? "scale-100 opacity-100" : "scale-50 opacity-0"
+        } ${styles.pulse}`}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        onClick={() => {
+          setIsVisible(false);
+          setTimeout(() => onDismiss(alert.id), 300);
+        }}
+      >
+        {getSensorIcon(alert.sensorType)}
+
+        {/* Alert indicator dot */}
+        <div
+          className={`absolute -top-1 -right-1 w-4 h-4 ${styles.bg} border-2 border-white rounded-full ${styles.pulse}`}
+        >
+          <div className="w-full h-full bg-white rounded-full opacity-80"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Mobile-style Alert Notification Manager
+ */
+const MobileAlertManager = () => {
+  const { alerts, dismissAlert } = useSensorData();
+  const [activeIcons, setActiveIcons] = useState([]);
+
+  useEffect(() => {
+    const activeAlerts = alerts.filter((alert) => alert.isActive);
+
+    // Group alerts by sensor type to avoid duplicates for same sensor
+    const alertsBySensor = activeAlerts.reduce((acc, alert) => {
+      if (
+        !acc[alert.sensorType] ||
+        (acc[alert.sensorType].severity === "warning" &&
+          alert.severity === "danger")
+      ) {
+        acc[alert.sensorType] = alert;
+      }
+      return acc;
+    }, {});
+
+    const uniqueAlerts = Object.values(alertsBySensor);
+
+    // Add new alert icons
+    uniqueAlerts.forEach((alert) => {
+      if (!activeIcons.some((icon) => icon.sensorType === alert.sensorType)) {
+        setActiveIcons((prev) => [...prev, alert]);
+      }
+    });
+
+    // Remove icons for alerts that are no longer active
+    setActiveIcons((prev) =>
+      prev.filter((icon) =>
+        uniqueAlerts.some((alert) => alert.sensorType === icon.sensorType)
+      )
+    );
+  }, [alerts]);
+
+  const handleDismiss = (alertId) => {
+    setActiveIcons((prev) => prev.filter((icon) => icon.id !== alertId));
+    dismissAlert(alertId);
+  };
+
+  const getIconPosition = (index) => {
+    const spacing = 60; // Space between icons
+    return {
+      right: -450,
+      top: 10 + index * spacing,
+    };
+  };
+
+  return (
+    <>
+      {activeIcons.map((alert, index) => (
+        <AlertIcon
+          key={`${alert.sensorType}-${alert.id}`}
+          alert={alert}
+          position={getIconPosition(index)}
+          onDismiss={handleDismiss}
+        />
+      ))}
+    </>
+  );
+};
 
 /**
  * Custom hook untuk mengambil data dari Weather API (demo)
@@ -213,114 +382,7 @@ function useWeatherDemo() {
 }
 
 /**
- * Enhanced Alert Banner dengan grouping dan prioritas
- */
-const AlertBanner = () => {
-  const { alerts, dismissAlert } = useSensorData();
-  const [expandedView, setExpandedView] = useState(false);
-
-  // Group alerts by severity and type
-  const activeAlerts = alerts.filter((alert) => alert.isActive);
-  const dangerAlerts = activeAlerts.filter(
-    (alert) => alert.severity === "danger"
-  );
-  const warningAlerts = activeAlerts.filter(
-    (alert) => alert.severity === "warning"
-  );
-
-  if (activeAlerts.length === 0) return null;
-
-  return (
-    <div className="mb-6 space-y-2">
-      {/* Priority alerts (danger first) */}
-      {dangerAlerts.slice(0, 2).map((alert) => (
-        <div
-          key={alert.id}
-          className="flex items-center justify-between p-4 rounded-lg shadow-md border-l-4 border-red-500 bg-red-100 text-red-800 animate-pulse"
-        >
-          <div className="flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-3 text-red-600" />
-            <div>
-              <p className="font-semibold text-sm">{alert.message}</p>
-              <div className="flex items-center text-xs opacity-75 mt-1">
-                <Clock className="w-3 h-3 mr-1" />
-                {new Date(alert.timestamp).toLocaleTimeString()}
-                <span className="ml-2 px-1 bg-red-200 rounded text-red-700 font-medium">
-                  URGENT
-                </span>
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => dismissAlert(alert.id)}
-            className="p-1 hover:bg-red-200 rounded-full transition-colors"
-            title="Dismiss alert"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      ))}
-
-      {/* Warning alerts */}
-      {warningAlerts
-        .slice(0, expandedView ? warningAlerts.length : 1)
-        .map((alert) => (
-          <div
-            key={alert.id}
-            className="flex items-center justify-between p-4 rounded-lg shadow-md border-l-4 border-yellow-500 bg-yellow-100 text-yellow-800"
-          >
-            <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 mr-3 text-yellow-600" />
-              <div>
-                <p className="font-semibold text-sm">{alert.message}</p>
-                <div className="flex items-center text-xs opacity-75 mt-1">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {new Date(alert.timestamp).toLocaleTimeString()}
-                  <span className="ml-2 px-1 bg-yellow-200 rounded text-yellow-700 font-medium">
-                    WARNING
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => dismissAlert(alert.id)}
-              className="p-1 hover:bg-yellow-200 rounded-full transition-colors"
-              title="Dismiss alert"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
-
-      {/* Show more/less toggle */}
-      {activeAlerts.length > 3 && (
-        <div className="text-center">
-          <button
-            onClick={() => setExpandedView(!expandedView)}
-            className="text-sm text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition-colors"
-          >
-            {expandedView
-              ? `Sembunyikan ${activeAlerts.length - 3} alert lainnya`
-              : `Lihat ${activeAlerts.length - 3} alert lainnya`}
-          </button>
-        </div>
-      )}
-
-      {/* Quick actions */}
-      <div className="flex justify-center space-x-2 pt-2">
-        <Link href="/dashboard/thresholds">
-          <button className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded-full transition-colors flex items-center">
-            <Settings className="w-3 h-3 mr-1" />
-            Atur Threshold
-          </button>
-        </Link>
-      </div>
-    </div>
-  );
-};
-
-/**
- * Enhanced Sensor Card with better alert indicators
+ * Enhanced Sensor Card dengan alert icons dan pesan lengkap
  */
 const SensorCard = ({
   title,
@@ -376,34 +438,20 @@ const SensorCard = ({
           : "border-gray-200"
       }`}
     >
-      {/* Enhanced alert indicator */}
+      {/* Icon alert pada sensor - hanya icon, tanpa badge count */}
       {hasAlert && (
-        <>
-          <div
-            className={`absolute top-0 right-0 w-0 h-0 border-l-[25px] border-b-[25px] border-l-transparent ${
+        <div className="absolute top-2 right-2">
+          <AlertTriangle
+            className={`w-6 h-6 ${
               alertSeverity === "danger"
-                ? "border-b-red-500"
-                : "border-b-yellow-500"
+                ? "text-red-500 animate-pulse"
+                : "text-yellow-500 animate-bounce"
             }`}
-          >
-            <AlertTriangle
-              className={`absolute -top-[22px] -right-[22px] w-4 h-4 text-white animate-pulse`}
-            />
-          </div>
-          {/* Alert count badge */}
-          {sensorAlerts.length > 1 && (
-            <div
-              className={`absolute top-1 right-8 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                alertSeverity === "danger" ? "bg-red-600" : "bg-yellow-600"
-              }`}
-            >
-              {sensorAlerts.length}
-            </div>
-          )}
-        </>
+          />
+        </div>
       )}
 
-      <div className="absolute top-2 right-2 flex items-center space-x-1">
+      <div className="absolute top-2 left-2 flex items-center space-x-1">
         {isConnected ? (
           <Wifi className="w-3 h-3 text-green-500" />
         ) : (
@@ -416,7 +464,7 @@ const SensorCard = ({
         )}
       </div>
 
-      <div className="relative z-10 flex items-center justify-between mb-2">
+      <div className="relative z-10 flex items-center justify-between mb-2 mt-4">
         <h3 className="text-xs md:text-sm font-semibold text-gray-500 font-inter">
           {title}
         </h3>
@@ -486,31 +534,36 @@ const SensorCard = ({
         </div>
       )}
 
-      {/* Latest alert preview */}
-      {hasAlert && (
-        <div className="mt-2">
-          <div
-            className={`text-xs p-2 rounded ${
-              alertSeverity === "danger"
-                ? "bg-red-50 text-red-700 border border-red-200"
-                : "bg-yellow-50 text-yellow-700 border border-yellow-200"
-            }`}
-          >
-            <div className="flex items-center">
-              <AlertTriangle className="w-3 h-3 mr-1" />
-              <span className="font-medium">
-                {sensorAlerts.length === 1
-                  ? "Alert Aktif"
-                  : `${sensorAlerts.length} Alert Aktif`}
-              </span>
+      {/* Alert messages pada card - tampil penuh tanpa terpotong */}
+      {hasAlert && sensorAlerts.length > 0 && (
+        <div className="mt-3 space-y-2">
+          {sensorAlerts.map((alert, index) => (
+            <div
+              key={alert.id}
+              className={`text-xs p-3 rounded-lg border ${
+                alert.severity === "danger"
+                  ? "bg-red-50 text-red-700 border-red-200"
+                  : "bg-yellow-50 text-yellow-700 border-yellow-200"
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium mb-1">
+                    Alert {index + 1} - {alert.severity.toUpperCase()}
+                  </div>
+                  {/* Pesan alert terlihat penuh tanpa terpotong */}
+                  <div className="text-xs leading-relaxed break-words whitespace-pre-wrap">
+                    {alert.message}
+                  </div>
+                  <div className="text-xs opacity-75 mt-1 flex items-center">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {new Date(alert.timestamp).toLocaleString()}
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="mt-1 truncate">{sensorAlerts[0].message}</p>
-            {sensorAlerts.length > 1 && (
-              <p className="mt-1 text-xs opacity-75">
-                +{sensorAlerts.length - 1} alert lainnya
-              </p>
-            )}
-          </div>
+          ))}
         </div>
       )}
 
@@ -639,6 +692,9 @@ export default function DashboardPage() {
 
   return (
     <Layout title="PkM Lab Dashboard">
+      {/* Mobile-style Alert Icons */}
+      <MobileAlertManager />
+
       <div className="w-full">
         <div className="flex justify-between items-center mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 font-calistoga animate-fade-in">
@@ -671,9 +727,6 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
-
-        {/* Enhanced Alert Banner */}
-        <AlertBanner />
 
         {/* Sensor Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-6 mb-8">
@@ -938,7 +991,8 @@ export default function DashboardPage() {
             <p className="text-xs text-gray-600">
               💡 <strong>System Info:</strong> Using OpenWeatherMap API for
               real-time weather data. Soil moisture is simulated based on
-              humidity. Alert system monitors thresholds in real-time.
+              humidity. Alert system monitors thresholds in real-time with
+              pop-up notifications.
               {activeAlerts.length > 0 && (
                 <span className="block mt-1 text-blue-600">
                   🔧 Manage alert thresholds in Settings to customize monitoring
@@ -970,6 +1024,33 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* CSS untuk animasi */}
+      <style jsx>{`
+        @keyframes shrink {
+          from {
+            width: 100%;
+          }
+          to {
+            width: 0%;
+          }
+        }
+
+        .animate-slide-in {
+          animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </Layout>
   );
 }
