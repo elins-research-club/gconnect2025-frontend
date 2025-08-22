@@ -77,10 +77,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
             : `mb-8 py-4 ${isCollapsed ? "px-4" : "px-4"}`
         } ${isCollapsed && !isMobile ? "justify-start" : "justify-between"}`}
       >
-        {/* The G-Connect title is now only displayed when the sidebar is not collapsed */}
+        {/* The PkM Lab title is now only displayed when the sidebar is not collapsed */}
         {!isCollapsed && (
           <div className="text-xl font-extrabold text-gray-900 tracking-wide transition-all duration-300 transform hover:scale-105">
-            G-Connect
+            PkM Lab
           </div>
         )}
         <button

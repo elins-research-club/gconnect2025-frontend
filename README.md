@@ -1,7 +1,8 @@
-# 🌐 G-Connect 2025 Frontend
-Repositori ini berisi kode frontend untuk proyek G-Connect 2025.
+# 🌐 PkM Lab 2025 Frontend
 
-**G-Connect Dashboard** adalah dashboard IoT berbasis web yang menampilkan data sensor secara real-time dan historis. Dibangun menggunakan **Next.js** dengan tampilan simpel bergaya modern.
+Repositori ini berisi kode frontend untuk proyek PkM Lab 2025.
+
+**PkM Lab Dashboard** adalah dashboard IoT berbasis web yang menampilkan data sensor secara real-time dan historis. Dibangun menggunakan **Next.js** dengan tampilan simpel bergaya modern.
 
 ---
 
@@ -49,3 +50,4 @@ yarn install
 # 3. Jalankan secara lokal
 npm run dev
 # lalu buka http://localhost:3000
+```

@@ -1,4 +1,4 @@
-// src/pages/dashboard/index.js - Updated dengan Alert System
+// src/pages/dashboard/index.js - Enhanced with Fixed Alert System
 import Layout from "../../components/common/Layout";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -30,6 +30,9 @@ import {
   AlertTriangle,
   X,
   AlertCircle,
+  Settings,
+  TrendingUp,
+  Activity,
 } from "lucide-react";
 
 // Registrasi ChartJS
@@ -195,7 +198,7 @@ function useWeatherDemo() {
 
   useEffect(() => {
     fetchWeatherData();
-    const interval = setInterval(fetchWeatherData, 30000);
+    const interval = setInterval(fetchWeatherData, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -210,55 +213,114 @@ function useWeatherDemo() {
 }
 
 /**
- * Komponen Alert Banner
+ * Enhanced Alert Banner dengan grouping dan prioritas
  */
 const AlertBanner = () => {
   const { alerts, dismissAlert } = useSensorData();
+  const [expandedView, setExpandedView] = useState(false);
+
+  // Group alerts by severity and type
   const activeAlerts = alerts.filter((alert) => alert.isActive);
+  const dangerAlerts = activeAlerts.filter(
+    (alert) => alert.severity === "danger"
+  );
+  const warningAlerts = activeAlerts.filter(
+    (alert) => alert.severity === "warning"
+  );
 
   if (activeAlerts.length === 0) return null;
 
   return (
     <div className="mb-6 space-y-2">
-      {activeAlerts.slice(0, 3).map((alert) => (
+      {/* Priority alerts (danger first) */}
+      {dangerAlerts.slice(0, 2).map((alert) => (
         <div
           key={alert.id}
-          className={`flex items-center justify-between p-4 rounded-lg shadow-md animate-pulse ${
-            alert.severity === "danger"
-              ? "bg-red-100 border-l-4 border-red-500 text-red-800"
-              : "bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800"
-          }`}
+          className="flex items-center justify-between p-4 rounded-lg shadow-md border-l-4 border-red-500 bg-red-100 text-red-800 animate-pulse"
         >
           <div className="flex items-center">
-            <AlertTriangle className="w-5 h-5 mr-3" />
+            <AlertTriangle className="w-5 h-5 mr-3 text-red-600" />
             <div>
               <p className="font-semibold text-sm">{alert.message}</p>
-              <p className="text-xs opacity-75">
+              <div className="flex items-center text-xs opacity-75 mt-1">
+                <Clock className="w-3 h-3 mr-1" />
                 {new Date(alert.timestamp).toLocaleTimeString()}
-              </p>
+                <span className="ml-2 px-1 bg-red-200 rounded text-red-700 font-medium">
+                  URGENT
+                </span>
+              </div>
             </div>
           </div>
           <button
             onClick={() => dismissAlert(alert.id)}
-            className="p-1 hover:bg-white hover:bg-opacity-30 rounded-full transition-colors"
+            className="p-1 hover:bg-red-200 rounded-full transition-colors"
+            title="Dismiss alert"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
       ))}
+
+      {/* Warning alerts */}
+      {warningAlerts
+        .slice(0, expandedView ? warningAlerts.length : 1)
+        .map((alert) => (
+          <div
+            key={alert.id}
+            className="flex items-center justify-between p-4 rounded-lg shadow-md border-l-4 border-yellow-500 bg-yellow-100 text-yellow-800"
+          >
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 mr-3 text-yellow-600" />
+              <div>
+                <p className="font-semibold text-sm">{alert.message}</p>
+                <div className="flex items-center text-xs opacity-75 mt-1">
+                  <Clock className="w-3 h-3 mr-1" />
+                  {new Date(alert.timestamp).toLocaleTimeString()}
+                  <span className="ml-2 px-1 bg-yellow-200 rounded text-yellow-700 font-medium">
+                    WARNING
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => dismissAlert(alert.id)}
+              className="p-1 hover:bg-yellow-200 rounded-full transition-colors"
+              title="Dismiss alert"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+
+      {/* Show more/less toggle */}
       {activeAlerts.length > 3 && (
         <div className="text-center">
-          <p className="text-sm text-gray-600">
-            +{activeAlerts.length - 3} peringatan lainnya
-          </p>
+          <button
+            onClick={() => setExpandedView(!expandedView)}
+            className="text-sm text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full transition-colors"
+          >
+            {expandedView
+              ? `Sembunyikan ${activeAlerts.length - 3} alert lainnya`
+              : `Lihat ${activeAlerts.length - 3} alert lainnya`}
+          </button>
         </div>
       )}
+
+      {/* Quick actions */}
+      <div className="flex justify-center space-x-2 pt-2">
+        <Link href="/dashboard/thresholds">
+          <button className="text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded-full transition-colors flex items-center">
+            <Settings className="w-3 h-3 mr-1" />
+            Atur Threshold
+          </button>
+        </Link>
+      </div>
     </div>
   );
 };
 
 /**
- * Komponen kartu sensor dengan alert system
+ * Enhanced Sensor Card with better alert indicators
  */
 const SensorCard = ({
   title,
@@ -283,10 +345,20 @@ const SensorCard = ({
     const numValue = parseFloat(value);
     const threshold = thresholds[sensorType];
 
-    if (threshold.min !== undefined && numValue < threshold.min) {
+    if (
+      threshold.min !== undefined &&
+      threshold.min !== null &&
+      threshold.min !== "" &&
+      numValue < threshold.min
+    ) {
       return { status: "below", limit: threshold.min };
     }
-    if (threshold.max !== undefined && numValue > threshold.max) {
+    if (
+      threshold.max !== undefined &&
+      threshold.max !== null &&
+      threshold.max !== "" &&
+      numValue > threshold.max
+    ) {
       return { status: "above", limit: threshold.max };
     }
     return { status: "normal" };
@@ -299,24 +371,36 @@ const SensorCard = ({
       className={`bg-white p-4 md:p-6 rounded-2xl shadow-xl border transition-all duration-300 ease-in-out transform hover:scale-[1.03] hover:shadow-2xl relative overflow-hidden group ${
         hasAlert
           ? alertSeverity === "danger"
-            ? "border-red-300 animate-pulse"
-            : "border-yellow-300 animate-pulse"
+            ? "border-red-300 shadow-red-100"
+            : "border-yellow-300 shadow-yellow-100"
           : "border-gray-200"
       }`}
     >
-      {/* Alert indicator */}
+      {/* Enhanced alert indicator */}
       {hasAlert && (
-        <div
-          className={`absolute top-0 right-0 w-0 h-0 border-l-[20px] border-b-[20px] border-l-transparent ${
-            alertSeverity === "danger"
-              ? "border-b-red-500"
-              : "border-b-yellow-500"
-          }`}
-        >
-          <AlertCircle
-            className={`absolute -top-[18px] -right-[18px] w-3 h-3 text-white`}
-          />
-        </div>
+        <>
+          <div
+            className={`absolute top-0 right-0 w-0 h-0 border-l-[25px] border-b-[25px] border-l-transparent ${
+              alertSeverity === "danger"
+                ? "border-b-red-500"
+                : "border-b-yellow-500"
+            }`}
+          >
+            <AlertTriangle
+              className={`absolute -top-[22px] -right-[22px] w-4 h-4 text-white animate-pulse`}
+            />
+          </div>
+          {/* Alert count badge */}
+          {sensorAlerts.length > 1 && (
+            <div
+              className={`absolute top-1 right-8 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                alertSeverity === "danger" ? "bg-red-600" : "bg-yellow-600"
+              }`}
+            >
+              {sensorAlerts.length}
+            </div>
+          )}
+        </>
       )}
 
       <div className="absolute top-2 right-2 flex items-center space-x-1">
@@ -327,7 +411,7 @@ const SensorCard = ({
         )}
         {weather && (
           <span className="text-xs text-gray-400 bg-gray-100 px-1 rounded">
-            API
+            {weather === "simulated" ? "SIM" : "API"}
           </span>
         )}
       </div>
@@ -362,44 +446,75 @@ const SensorCard = ({
         </span>
       </p>
 
-      {/* Threshold info */}
-      {thresholdInfo && thresholdInfo.status !== "normal" && (
-        <div
-          className={`mt-2 text-xs p-2 rounded ${
-            thresholdInfo.status === "below"
-              ? "bg-blue-100 text-blue-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {thresholdInfo.status === "below"
-            ? `Di bawah batas minimum (${thresholdInfo.limit}${unit})`
-            : `Melebihi batas maksimum (${thresholdInfo.limit}${unit})`}
-        </div>
-      )}
-
-      {/* Alert details */}
-      {hasAlert && (
-        <div className="mt-2 text-xs space-y-1">
-          {sensorAlerts.slice(0, 2).map((alert) => (
+      {/* Threshold status bar */}
+      {thresholdInfo && (
+        <div className="mt-3">
+          <div
+            className={`h-2 rounded-full overflow-hidden ${
+              thresholdInfo.status === "normal"
+                ? "bg-green-100"
+                : thresholdInfo.status === "below"
+                ? "bg-blue-100"
+                : "bg-red-100"
+            }`}
+          >
             <div
-              key={alert.id}
-              className={`p-2 rounded ${
-                alert.severity === "danger"
-                  ? "bg-red-50 text-red-700 border border-red-200"
-                  : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+              className={`h-full transition-all duration-500 ${
+                thresholdInfo.status === "normal"
+                  ? "bg-green-500 w-full"
+                  : thresholdInfo.status === "below"
+                  ? "bg-blue-500 w-1/4"
+                  : "bg-red-500 w-full"
               }`}
-            >
-              <div className="flex items-center">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                <span className="font-medium">Peringatan!</span>
-              </div>
-              <p className="mt-1">{alert.message}</p>
-            </div>
-          ))}
+            ></div>
+          </div>
+          <p
+            className={`text-xs mt-1 ${
+              thresholdInfo.status === "normal"
+                ? "text-green-600"
+                : thresholdInfo.status === "below"
+                ? "text-blue-600"
+                : "text-red-600"
+            }`}
+          >
+            {thresholdInfo.status === "normal"
+              ? "Normal"
+              : thresholdInfo.status === "below"
+              ? `< ${thresholdInfo.limit}${unit}`
+              : `> ${thresholdInfo.limit}${unit}`}
+          </p>
         </div>
       )}
 
-      {weather && (
+      {/* Latest alert preview */}
+      {hasAlert && (
+        <div className="mt-2">
+          <div
+            className={`text-xs p-2 rounded ${
+              alertSeverity === "danger"
+                ? "bg-red-50 text-red-700 border border-red-200"
+                : "bg-yellow-50 text-yellow-700 border border-yellow-200"
+            }`}
+          >
+            <div className="flex items-center">
+              <AlertTriangle className="w-3 h-3 mr-1" />
+              <span className="font-medium">
+                {sensorAlerts.length === 1
+                  ? "Alert Aktif"
+                  : `${sensorAlerts.length} Alert Aktif`}
+              </span>
+            </div>
+            <p className="mt-1 truncate">{sensorAlerts[0].message}</p>
+            {sensorAlerts.length > 1 && (
+              <p className="mt-1 text-xs opacity-75">
+                +{sensorAlerts.length - 1} alert lainnya
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {weather && weather !== "simulated" && (
         <p className="text-xs text-gray-400 mt-1 capitalize">{weather}</p>
       )}
     </div>
@@ -515,9 +630,15 @@ export default function DashboardPage() {
 
   const connectionStatus = getConnectionStatus();
   const activeAlerts = alerts.filter((alert) => alert.isActive);
+  const dangerAlerts = activeAlerts.filter(
+    (alert) => alert.severity === "danger"
+  );
+  const warningAlerts = activeAlerts.filter(
+    (alert) => alert.severity === "warning"
+  );
 
   return (
-    <Layout title="G-Connect Dashboard">
+    <Layout title="PkM Lab Dashboard">
       <div className="w-full">
         <div className="flex justify-between items-center mb-6 md:mb-8">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 font-calistoga animate-fade-in">
@@ -530,9 +651,14 @@ export default function DashboardPage() {
           </h1>
 
           <div className="flex items-center space-x-2">
-            <span className={`text-sm font-medium ${connectionStatus.color}`}>
-              {connectionStatus.text}
-            </span>
+            <div className="flex flex-col items-end">
+              <span className={`text-sm font-medium ${connectionStatus.color}`}>
+                {connectionStatus.text}
+              </span>
+              {lastUpdatedTime && (
+                <span className="text-xs text-gray-400">{lastUpdatedTime}</span>
+              )}
+            </div>
             <button
               onClick={refetch}
               disabled={loading}
@@ -546,7 +672,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Alert Banner */}
+        {/* Enhanced Alert Banner */}
         <AlertBanner />
 
         {/* Sensor Cards */}
@@ -625,7 +751,8 @@ export default function DashboardPage() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-6">
           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-gray-200 flex flex-col hover:scale-[1.01] transition-all duration-300">
-            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga">
+            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-blue-500" />
               Air Temperature
               <span className="text-xs font-normal text-blue-500 ml-2">
                 API
@@ -644,7 +771,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-gray-200 flex flex-col hover:scale-[1.01] transition-all duration-300">
-            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga">
+            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-purple-500" />
               Air Humidity
               <span className="text-xs font-normal text-blue-500 ml-2">
                 API
@@ -663,7 +791,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-gray-200 flex flex-col hover:scale-[1.01] transition-all duration-300">
-            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga">
+            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-green-500" />
               Soil Moisture
               <span className="text-xs font-normal text-yellow-500 ml-2">
                 SIM
@@ -682,7 +811,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-gray-200 flex flex-col hover:scale-[1.01] transition-all duration-300">
-            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga">
+            <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga flex items-center">
+              <TrendingUp className="w-5 h-5 mr-2 text-indigo-500" />
               Wind Speed
               <span className="text-xs font-normal text-blue-500 ml-2">
                 API
@@ -701,49 +831,59 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Summary */}
+        {/* Enhanced Quick Summary */}
         <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-gray-200">
           <h3 className="text-lg md:text-xl font-semibold mb-4 text-gray-800 font-calistoga">
-            Quick Summary
+            Quick Summary & System Status
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center">
                 <Gauge className="w-4 h-4 md:w-5 md:h-5 mr-2 text-green-600" />
-                <span>Status</span>
+                <span className="text-sm">Connection</span>
               </div>
               <span
-                className={`font-semibold ${
+                className={`font-semibold text-sm ${
                   isConnected ? "text-green-600" : "text-yellow-600"
                 }`}
               >
-                {isConnected ? "Connected" : "Demo Mode"}
+                {isConnected ? "Online" : "Demo"}
               </span>
             </div>
-            <div className="flex items-center justify-between">
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center">
                 <Zap className="w-4 h-4 md:w-5 md:h-5 mr-2 text-blue-600" />
-                <span>Data Source</span>
+                <span className="text-sm">Data Source</span>
               </div>
-              <span className="font-semibold text-blue-600">Weather API</span>
+              <span className="font-semibold text-blue-600 text-sm">
+                Weather API
+              </span>
             </div>
-            <div className="flex items-center justify-between">
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center">
                 <BellRing className="w-4 h-4 md:w-5 md:h-5 mr-2 text-rose-600" />
-                <span>Alerts</span>
+                <span className="text-sm">Active Alerts</span>
               </div>
               <span
-                className={`font-semibold ${
+                className={`font-semibold text-sm ${
                   activeAlerts.length > 0 ? "text-rose-600" : "text-green-600"
                 }`}
               >
                 {activeAlerts.length}
+                {activeAlerts.length > 0 && (
+                  <span className="ml-1 text-xs">
+                    ({dangerAlerts.length}D/{warningAlerts.length}W)
+                  </span>
+                )}
               </span>
             </div>
-            <div className="flex items-center justify-between">
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center">
-                <Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 text-gray-800" />
-                <span>Updated</span>
+                <Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 text-gray-600" />
+                <span className="text-sm">Last Update</span>
               </div>
               <span className="font-semibold text-gray-800 text-xs">
                 {lastUpdatedTime || "Loading..."}
@@ -751,20 +891,83 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          {/* Alert Breakdown */}
+          {activeAlerts.length > 0 && (
+            <div className="p-3 bg-red-50 rounded-lg mb-4 border border-red-200">
+              <h4 className="font-semibold text-red-800 text-sm mb-2 flex items-center">
+                <AlertTriangle className="w-4 h-4 mr-1" />
+                Alert Breakdown by Sensor:
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                {["temperature", "humidity", "soilHumidity", "windSpeed"].map(
+                  (sensorType) => {
+                    const sensorAlerts = activeAlerts.filter(
+                      (alert) => alert.type === sensorType
+                    );
+                    const sensorName = {
+                      temperature: "Temperature",
+                      humidity: "Humidity",
+                      soilHumidity: "Soil Moisture",
+                      windSpeed: "Wind Speed",
+                    }[sensorType];
+
+                    return (
+                      <div
+                        key={sensorType}
+                        className={`p-2 rounded ${
+                          sensorAlerts.length > 0
+                            ? "bg-red-100 text-red-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        <div className="font-medium">{sensorName}</div>
+                        <div>
+                          {sensorAlerts.length} alert
+                          {sensorAlerts.length !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* System Info */}
+          <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-xs text-gray-600">
-              💡 <strong>Demo Mode:</strong> Menggunakan OpenWeatherMap API
-              untuk temperature, humidity, dan wind speed. Soil moisture
-              disimulasi berdasarkan humidity. Sistem alert aktif berdasarkan
-              threshold.
+              💡 <strong>System Info:</strong> Using OpenWeatherMap API for
+              real-time weather data. Soil moisture is simulated based on
+              humidity. Alert system monitors thresholds in real-time.
+              {activeAlerts.length > 0 && (
+                <span className="block mt-1 text-blue-600">
+                  🔧 Manage alert thresholds in Settings to customize monitoring
+                  parameters.
+                </span>
+              )}
             </p>
           </div>
 
-          <Link href="/dashboard/history">
-            <button className="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold py-2 md:py-3 rounded-md transition-colors duration-200 font-inter">
-              View Full Report
-            </button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            <Link href="/dashboard/history" className="flex-1">
+              <button className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold py-2 md:py-3 rounded-md transition-colors duration-200 font-inter">
+                View Full Report
+              </button>
+            </Link>
+
+            <Link href="/dashboard/thresholds" className="flex-1">
+              <button
+                className={`w-full text-sm font-bold py-2 md:py-3 rounded-md transition-colors duration-200 font-inter ${
+                  activeAlerts.length > 0
+                    ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
+                    : "bg-gray-500 hover:bg-gray-600 text-white"
+                }`}
+              >
+                <Settings className="inline w-4 h-4 mr-2" />
+                {activeAlerts.length > 0 ? "Manage Alerts" : "Settings"}
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </Layout>

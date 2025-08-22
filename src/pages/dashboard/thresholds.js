@@ -1,9 +1,9 @@
-// src/pages/dashboard/thresholds.js - Updated dengan Context Integration
+// src/pages/dashboard/thresholds.js - Fixed Version
 import Layout from "../../components/common/Layout";
 import { useState, useEffect } from "react";
 import { useSensorData } from "../../context/SensorContext";
-import { useAuth } from "../../context/AuthContext"; // Import useAuth
-import { useRouter } from "next/router"; // Import useRouter
+import { useAuth } from "../../context/AuthContext";
+import { useRouter } from "next/router";
 import {
   AlertTriangle,
   CheckCircle,
@@ -13,26 +13,33 @@ import {
   RotateCcw,
   Eye,
   EyeOff,
+  RefreshCw,
+  Trash2,
 } from "lucide-react";
 
 export default function ThresholdSettingsPage() {
-  const { isAuthenticated } = useAuth(); // Dapatkan status autentikasi
-  const router = useRouter(); // Dapatkan instance router
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
-  // Efek untuk memeriksa autentikasi saat komponen dimuat
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/auth/login"); // Arahkan ke halaman login jika tidak terautentikasi
+      router.push("/auth/login");
     }
   }, [isAuthenticated, router]);
 
-  // Hentikan rendering jika pengguna belum terautentikasi
   if (!isAuthenticated) {
     return null;
   }
 
-  const { thresholds, updateThresholds, alerts, currentData, clearAllAlerts } =
-    useSensorData();
+  const {
+    thresholds,
+    updateThresholds,
+    resetThresholds,
+    alerts,
+    currentData,
+    clearAllAlerts,
+  } = useSensorData();
+
   const [localThresholds, setLocalThresholds] = useState(thresholds);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -51,24 +58,36 @@ export default function ThresholdSettingsPage() {
     setHasChanges(hasChanged);
   }, [localThresholds, thresholds]);
 
+  // Enhanced threshold change handler
   const handleThresholdChange = (sensor, type, value) => {
     setLocalThresholds((prev) => ({
       ...prev,
       [sensor]: {
         ...prev[sensor],
-        [type]: parseFloat(value) || 0,
+        [type]: value === "" ? undefined : parseFloat(value) || 0,
       },
     }));
+  };
+
+  // Clear threshold value
+  const clearThresholdValue = (sensor, type) => {
+    setLocalThresholds((prev) => {
+      const newThresholds = { ...prev };
+      if (newThresholds[sensor]) {
+        delete newThresholds[sensor][type];
+      }
+      return newThresholds;
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setMessage("");
 
-    // Validasi threshold values
-    const isValid = validateThresholds(localThresholds);
-    if (!isValid.valid) {
-      setMessage(isValid.message);
+    // Enhanced validation
+    const validation = validateThresholds(localThresholds);
+    if (!validation.valid) {
+      setMessage(validation.message);
       setIsSuccess(false);
       return;
     }
@@ -79,7 +98,6 @@ export default function ThresholdSettingsPage() {
       setIsSuccess(true);
       setHasChanges(false);
 
-      // Clear message after 3 seconds
       setTimeout(() => {
         setMessage("");
       }, 3000);
@@ -100,10 +118,50 @@ export default function ThresholdSettingsPage() {
     }, 2000);
   };
 
+  const handleResetToDefaults = () => {
+    if (
+      confirm(
+        "Apakah Anda yakin ingin mengembalikan semua threshold ke pengaturan default?"
+      )
+    ) {
+      resetThresholds();
+      setMessage("Threshold berhasil direset ke pengaturan default");
+      setIsSuccess(true);
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+    }
+  };
+
+  // Enhanced validation function
   const validateThresholds = (thresholds) => {
     for (const [sensorName, values] of Object.entries(thresholds)) {
-      if (values.min !== undefined && values.max !== undefined) {
-        if (values.min >= values.max) {
+      // Skip validation if no values are set
+      const hasMin =
+        values.min !== undefined && values.min !== null && values.min !== "";
+      const hasMax =
+        values.max !== undefined && values.max !== null && values.max !== "";
+
+      if (!hasMin && !hasMax) {
+        continue; // It's okay to have no thresholds set
+      }
+
+      // If both are set, min should be less than max
+      if (hasMin && hasMax) {
+        const minVal = parseFloat(values.min);
+        const maxVal = parseFloat(values.max);
+
+        if (isNaN(minVal) || isNaN(maxVal)) {
+          return {
+            valid: false,
+            message: `Nilai threshold harus berupa angka untuk ${getSensorDisplayName(
+              sensorName
+            )}`,
+          };
+        }
+
+        if (minVal >= maxVal) {
           return {
             valid: false,
             message: `Nilai minimum harus lebih kecil dari maksimum untuk ${getSensorDisplayName(
@@ -113,9 +171,33 @@ export default function ThresholdSettingsPage() {
         }
       }
 
-      // Validasi range yang masuk akal
+      // Validate individual values
+      if (hasMin && isNaN(parseFloat(values.min))) {
+        return {
+          valid: false,
+          message: `Nilai minimum harus berupa angka untuk ${getSensorDisplayName(
+            sensorName
+          )}`,
+        };
+      }
+
+      if (hasMax && isNaN(parseFloat(values.max))) {
+        return {
+          valid: false,
+          message: `Nilai maksimum harus berupa angka untuk ${getSensorDisplayName(
+            sensorName
+          )}`,
+        };
+      }
+
+      // Validate reasonable ranges
       if (sensorName === "temperature") {
-        if (values.min < -50 || values.max > 80) {
+        if (
+          (hasMin &&
+            (parseFloat(values.min) < -50 || parseFloat(values.min) > 80)) ||
+          (hasMax &&
+            (parseFloat(values.max) < -50 || parseFloat(values.max) > 80))
+        ) {
           return {
             valid: false,
             message: "Threshold suhu harus dalam range -50°C hingga 80°C",
@@ -124,7 +206,12 @@ export default function ThresholdSettingsPage() {
       }
 
       if (sensorName === "humidity" || sensorName === "soilHumidity") {
-        if (values.min < 0 || values.max > 100) {
+        if (
+          (hasMin &&
+            (parseFloat(values.min) < 0 || parseFloat(values.min) > 100)) ||
+          (hasMax &&
+            (parseFloat(values.max) < 0 || parseFloat(values.max) > 100))
+        ) {
           return {
             valid: false,
             message: "Threshold kelembapan harus dalam range 0% hingga 100%",
@@ -133,7 +220,10 @@ export default function ThresholdSettingsPage() {
       }
 
       if (sensorName === "windSpeed") {
-        if (values.max < 0 || values.max > 200) {
+        if (
+          hasMax &&
+          (parseFloat(values.max) < 0 || parseFloat(values.max) > 200)
+        ) {
           return {
             valid: false,
             message: "Threshold kecepatan angin harus dalam range 0-200 km/h",
@@ -165,26 +255,37 @@ export default function ThresholdSettingsPage() {
     return units[sensorName] || "";
   };
 
-  // Simulasi preview bagaimana threshold akan mempengaruhi data saat ini
+  // Enhanced preview status
   const getPreviewStatus = (sensorName) => {
     if (!currentData || !currentData[sensorName]) return null;
 
     const currentValue = parseFloat(currentData[sensorName]);
     const threshold = localThresholds[sensorName];
 
+    if (!threshold) return null;
+
     let status = "normal";
     let message = `Nilai saat ini: ${currentValue}${getUnit(
       sensorName
     )} - Normal`;
 
-    if (threshold.min !== undefined && currentValue < threshold.min) {
+    const hasMin =
+      threshold.min !== undefined &&
+      threshold.min !== null &&
+      threshold.min !== "";
+    const hasMax =
+      threshold.max !== undefined &&
+      threshold.max !== null &&
+      threshold.max !== "";
+
+    if (hasMin && currentValue < parseFloat(threshold.min)) {
       status = "warning";
       message = `Nilai saat ini: ${currentValue}${getUnit(
         sensorName
       )} - AKAN MEMICU ALERT: Di bawah minimum (${threshold.min}${getUnit(
         sensorName
       )})`;
-    } else if (threshold.max !== undefined && currentValue > threshold.max) {
+    } else if (hasMax && currentValue > parseFloat(threshold.max)) {
       status = "danger";
       message = `Nilai saat ini: ${currentValue}${getUnit(
         sensorName
@@ -224,6 +325,16 @@ export default function ThresholdSettingsPage() {
                 <Eye className="w-4 h-4" />
               )}
             </button>
+
+            <button
+              onClick={handleResetToDefaults}
+              className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+              title="Reset ke default"
+            >
+              <RefreshCw className="w-4 h-4 inline mr-1" />
+              Default
+            </button>
+
             {activeAlerts.length > 0 && (
               <button
                 onClick={clearAllAlerts}
@@ -231,8 +342,7 @@ export default function ThresholdSettingsPage() {
                 title="Clear semua alert"
               >
                 <Bell className="w-4 h-4 inline mr-1" />
-                Clear {activeAlerts.length} Alert
-                {activeAlerts.length > 1 ? "s" : ""}
+                Clear {activeAlerts.length}
               </button>
             )}
           </div>
@@ -247,16 +357,19 @@ export default function ThresholdSettingsPage() {
                 {activeAlerts.length} Peringatan Aktif
               </h3>
             </div>
-            <div className="text-sm text-red-700 space-y-1">
-              {activeAlerts.slice(0, 3).map((alert) => (
+            <div className="text-sm text-red-700 space-y-1 max-h-32 overflow-y-auto">
+              {activeAlerts.slice(0, 5).map((alert) => (
                 <div key={alert.id} className="flex items-center">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                  {alert.message}
+                  <span className="w-2 h-2 bg-red-500 rounded-full mr-2 flex-shrink-0"></span>
+                  <span className="truncate">{alert.message}</span>
+                  <span className="ml-2 text-xs text-red-500 flex-shrink-0">
+                    {new Date(alert.timestamp).toLocaleTimeString()}
+                  </span>
                 </div>
               ))}
-              {activeAlerts.length > 3 && (
+              {activeAlerts.length > 5 && (
                 <div className="text-red-600 font-medium">
-                  +{activeAlerts.length - 3} peringatan lainnya
+                  +{activeAlerts.length - 5} peringatan lainnya
                 </div>
               )}
             </div>
@@ -297,16 +410,13 @@ export default function ThresholdSettingsPage() {
             )}
           </div>
 
-          <p className="text-gray-600 mb-6 font-inter">
-            Atur batas nilai minimum dan maksimum untuk setiap sensor yang akan
-            memicu peringatan.
-            {currentData && (
-              <span className="block mt-2 text-sm text-blue-600">
-                💡 Data sensor saat ini akan digunakan untuk preview dampak
-                pengaturan threshold.
-              </span>
-            )}
-          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-blue-800 text-sm">
+              💡 <strong>Tips:</strong> Kosongkan field untuk tidak menggunakan
+              batas tersebut. Anda bisa mengatur hanya batas minimum, maksimum,
+              atau keduanya sesuai kebutuhan.
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit}>
             {Object.entries(localThresholds).map(([sensorName, values]) => {
@@ -348,14 +458,19 @@ export default function ThresholdSettingsPage() {
                       <p className="text-sm font-medium text-red-800 mb-2">
                         Alert Aktif:
                       </p>
-                      {sensorAlerts.map((alert) => (
-                        <div
-                          key={alert.id}
-                          className="text-xs text-red-700 mb-1"
-                        >
-                          • {alert.message}
-                        </div>
-                      ))}
+                      <div className="max-h-20 overflow-y-auto">
+                        {sensorAlerts.map((alert) => (
+                          <div
+                            key={alert.id}
+                            className="text-xs text-red-700 mb-1"
+                          >
+                            • {alert.message}
+                            <span className="ml-2 text-red-500">
+                              ({new Date(alert.timestamp).toLocaleTimeString()})
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -368,21 +483,39 @@ export default function ThresholdSettingsPage() {
                         >
                           Batas Minimum{" "}
                           {getUnit(sensorName) && `(${getUnit(sensorName)})`}
+                          <span className="text-gray-500 text-xs ml-1">
+                            - Opsional
+                          </span>
                         </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          id={`${sensorName}-min`}
-                          className="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
-                          value={values.min}
-                          onChange={(e) =>
-                            handleThresholdChange(
-                              sensorName,
-                              "min",
-                              e.target.value
-                            )
-                          }
-                        />
+                        <div className="relative">
+                          <input
+                            type="number"
+                            step="0.1"
+                            id={`${sensorName}-min`}
+                            className="w-full p-3 pr-10 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
+                            value={values.min !== undefined ? values.min : ""}
+                            onChange={(e) =>
+                              handleThresholdChange(
+                                sensorName,
+                                "min",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Kosong = tidak ada batas"
+                          />
+                          {values.min !== undefined && values.min !== "" && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                clearThresholdValue(sensorName, "min")
+                              }
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                              title="Hapus batas minimum"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                     {"max" in values && (
@@ -393,23 +526,76 @@ export default function ThresholdSettingsPage() {
                         >
                           Batas Maksimum{" "}
                           {getUnit(sensorName) && `(${getUnit(sensorName)})`}
+                          <span className="text-gray-500 text-xs ml-1">
+                            - Opsional
+                          </span>
                         </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          id={`${sensorName}-max`}
-                          className="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
-                          value={values.max}
-                          onChange={(e) =>
-                            handleThresholdChange(
-                              sensorName,
-                              "max",
-                              e.target.value
-                            )
-                          }
-                        />
+                        <div className="relative">
+                          <input
+                            type="number"
+                            step="0.1"
+                            id={`${sensorName}-max`}
+                            className="w-full p-3 pr-10 rounded-lg bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-200"
+                            value={values.max !== undefined ? values.max : ""}
+                            onChange={(e) =>
+                              handleThresholdChange(
+                                sensorName,
+                                "max",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Kosong = tidak ada batas"
+                          />
+                          {values.max !== undefined && values.max !== "" && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                clearThresholdValue(sensorName, "max")
+                              }
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
+                              title="Hapus batas maksimum"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
+                  </div>
+
+                  {/* Current threshold status */}
+                  <div className="mt-4 p-3 bg-gray-100 rounded-lg text-sm text-gray-700">
+                    <strong>Status Threshold:</strong>
+                    {(() => {
+                      const hasMin =
+                        values.min !== undefined &&
+                        values.min !== "" &&
+                        values.min !== null;
+                      const hasMax =
+                        values.max !== undefined &&
+                        values.max !== "" &&
+                        values.max !== null;
+
+                      if (!hasMin && !hasMax) {
+                        return (
+                          <span className="text-gray-500 ml-2">
+                            Tidak ada batas yang diset
+                          </span>
+                        );
+                      }
+
+                      const parts = [];
+                      if (hasMin)
+                        parts.push(`Min: ${values.min}${getUnit(sensorName)}`);
+                      if (hasMax)
+                        parts.push(`Max: ${values.max}${getUnit(sensorName)}`);
+
+                      return (
+                        <span className="text-blue-600 ml-2">
+                          {parts.join(", ")}
+                        </span>
+                      );
+                    })()}
                   </div>
 
                   {/* Preview Status */}
@@ -467,6 +653,10 @@ export default function ThresholdSettingsPage() {
           </h3>
           <ul className="text-sm text-blue-700 space-y-1">
             <li>
+              • <strong>Field Kosong:</strong> Biarkan kosong jika tidak ingin
+              menggunakan batas tersebut
+            </li>
+            <li>
               • <strong>Temperature:</strong> Atur sesuai kondisi optimal
               tanaman (umumnya 20-30°C)
             </li>
@@ -483,10 +673,27 @@ export default function ThresholdSettingsPage() {
               dapat merusak tanaman
             </li>
             <li>
-              • Sistem akan memberikan peringatan real-time ketika nilai
-              melebihi batas yang ditentukan
+              • <strong>Penyimpanan:</strong> Pengaturan akan tersimpan secara
+              otomatis di browser Anda
+            </li>
+            <li>
+              • <strong>Alert System:</strong> Sistem akan memberikan peringatan
+              real-time ketika nilai melebihi batas
             </li>
           </ul>
+        </div>
+
+        {/* Storage Info */}
+        <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <h3 className="font-semibold text-yellow-800 mb-2">
+            💾 Informasi Penyimpanan:
+          </h3>
+          <p className="text-sm text-yellow-700">
+            Pengaturan threshold dan alert history disimpan secara lokal di
+            browser Anda. Data akan tetap tersimpan bahkan setelah menutup
+            aplikasi, namun akan hilang jika Anda membersihkan cache browser
+            atau menggunakan mode incognito.
+          </p>
         </div>
       </div>
     </Layout>

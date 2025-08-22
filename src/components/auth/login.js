@@ -27,7 +27,7 @@ export default function LoginPage() {
     // Kontainer utama halaman login: background terang, teks default gelap, posisi relatif untuk animasi
     <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-900 font-sans relative overflow-hidden">
       <Head>
-        <title>Login - G-Connect</title> {/* Judul halaman untuk browser */}
+        <title>Login - PkM Lab</title> {/* Judul halaman untuk browser */}
       </Head>
 
       {/* Kontainer untuk elemen animasi background (lingkaran) */}
@@ -44,7 +44,7 @@ export default function LoginPage() {
       {/* Kartu login: tetap gelap untuk kontras dengan background terang */}
       <div className="bg-background-card p-8 rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-105 border border-background-border  z-10 relative">
         <h1 className="text-3xl font-extrabold text-center mb-8 text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-          Selamat Datang Kembali di G-Connect
+          Selamat Datang Kembali di PkM Lab
         </h1>
         {error && (
           <p className="bg-error text-text-light p-3 rounded-md mb-4 text-center border border-error ">
