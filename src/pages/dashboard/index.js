@@ -114,37 +114,39 @@ const AlertIcon = ({ alert, position, onDismiss }) => {
 
   return (
     <div
-      className="relative"
+      className={`fixed w-12 h-12 rounded-full ${styles.bg} ${
+        styles.border
+      } border-2 ${
+        styles.shadow
+      } shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 z-50 ${
+        isVisible ? "scale-100 opacity-100" : "scale-50 opacity-0"
+      } ${styles.pulse}`}
       style={{
-        right: `${position.right}px`,
-        top: `${position.top}px`,
+        right: `${position?.right || 20}px`,
+        top: `${position?.top || 20}px`,
+      }}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+      onClick={() => {
+        setIsVisible(false);
+        setTimeout(() => onDismiss(alert.id), 300);
       }}
     >
-      {/* Main Alert Icon */}
-      <div
-        className={`fixed w-12 h-12 rounded-full ${styles.bg} ${
-          styles.border
-        } border-2 ${
-          styles.shadow
-        } shadow-lg flex items-center justify-center cursor-pointer transition-all duration-300 z-50 ${
-          isVisible ? "scale-100 opacity-100" : "scale-50 opacity-0"
-        } ${styles.pulse}`}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onClick={() => {
-          setIsVisible(false);
-          setTimeout(() => onDismiss(alert.id), 300);
-        }}
-      >
-        {getSensorIcon(alert.sensorType)}
+      {getSensorIcon(alert.sensorType)}
 
-        {/* Alert indicator dot */}
-        <div
-          className={`absolute -top-1 -right-1 w-4 h-4 ${styles.bg} border-2 border-white rounded-full ${styles.pulse}`}
-        >
-          <div className="w-full h-full bg-white rounded-full opacity-80"></div>
-        </div>
+      {/* Alert indicator dot */}
+      <div
+        className={`absolute -top-1 -right-1 w-4 h-4 ${styles.bg} border-2 border-white rounded-full ${styles.pulse}`}
+      >
+        <div className="w-full h-full bg-white rounded-full opacity-80"></div>
       </div>
+
+      {/* Tooltip */}
+      {showTooltip && (
+        <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap">
+          {alert.message || `${alert.sensorType} alert`}
+        </div>
+      )}
     </div>
   );
 };
@@ -196,8 +198,8 @@ const MobileAlertManager = () => {
   const getIconPosition = (index) => {
     const spacing = 60; // Space between icons
     return {
-      right: -450,
-      top: 10 + index * spacing,
+      right: 20, // Fixed: changed from -450 to 20
+      top: 20 + index * spacing, // Start from top with spacing
     };
   };
 
