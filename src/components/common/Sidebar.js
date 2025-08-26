@@ -105,7 +105,6 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
           {navItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = router.pathname.startsWith(item.href);
-
             return (
               <Link
                 key={item.name}
@@ -114,7 +113,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
                 className={`flex items-center p-3 rounded-lg font-medium transition-all duration-300 group transform hover:translate-x-1
                   ${
                     isActive
-                      ? "bg-indigo-100 text-indigo-600 shadow-md scale-105"
+                      ? "bg-sky-200 text-black shadow-md scale-105"
                       : "text-gray-600 hover:bg-gray-200 hover:text-gray-900 hover:scale-102"
                   }`}
                 style={{
@@ -145,7 +144,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
                 className={`flex items-center justify-center p-3 rounded-lg font-medium transition-all duration-300 group relative transform hover:scale-110
                   ${
                     isActive
-                      ? "bg-indigo-100 text-indigo-600 shadow-md"
+                      ? "bg-sky-200 text-black shadow-md"
                       : "text-gray-600 hover:bg-gray-200 hover:text-gray-900"
                   }`}
                 title={item.name}

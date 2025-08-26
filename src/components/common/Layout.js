@@ -1,8 +1,36 @@
-// components/common/Layout.js - Corrected with centered animation
+// src/components/common/Layout.js - Corrected with centered animation
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
+
+const VideoBackground = () => {
+  return (
+    <div className="absolute inset-0 z-0 overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+        style={{
+          // Method 1: Slow down playback speed (0.5 = half speed, 0.25 = quarter speed)
+          transform: "scale(1.1)", // Optional: slight scale to avoid borders
+          filter: "brightness(1.2)", // Optional: adjust brightness
+        }}
+        // Method 2: Use playbackRate (requires ref)
+        ref={(video) => {
+          if (video) {
+            video.playbackRate = 0.75; // 0.5 = half speed, 0.25 = quarter speed
+          }
+        }}
+      >
+        <source src="/video/video-sky.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  );
+};
 
 const Layout = ({ children, title }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -31,7 +59,9 @@ const Layout = ({ children, title }) => {
 
   return (
     <div className="flex min-h-screen relative bg-gray-50 dark:bg-background-DEFAULT">
-      {/* Background SVG Waves - Posisi di tengah */}
+      {/* Background Video */}
+      <VideoBackground />
+      {/* Background SVG Waves - Posisi di tengah
       <div className="absolute inset-0 z-0 hidden lg:block overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <svg
@@ -52,13 +82,11 @@ const Layout = ({ children, title }) => {
             ></path>
           </svg>
         </div>
-      </div>
-
+      </div> */}
       {/* Head untuk title halaman */}
       <Head>
         <title>{title}</title>
       </Head>
-
       {/* Overlay untuk mobile */}
       {isMobile && !isCollapsed && (
         <div
@@ -66,7 +94,6 @@ const Layout = ({ children, title }) => {
           onClick={() => setIsCollapsed(true)}
         />
       )}
-
       {/* Sidebar - Fix: Gunakan fixed dan top-0 untuk sidebar mobile */}
       <div
         className={`fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-in-out ${
@@ -79,7 +106,6 @@ const Layout = ({ children, title }) => {
           isMobile={isMobile}
         />
       </div>
-
       {/* Main Content dengan z-index di atas background */}
       {/* Fix: Tambahkan `ml-0` untuk mobile dan perbaiki margin desktop */}
       <div
@@ -112,14 +138,12 @@ const Layout = ({ children, title }) => {
             </div>
           </div>
         )}
-
         {/* Konten Halaman */}
         <main
           className={`flex-1 p-3 md:p-5 transition-all duration-300 ease-in-out`}
         >
           <div className="animate-fadeIn">{children}</div>
         </main>
-
         {/* Footer */}
         <Footer />
       </div>
