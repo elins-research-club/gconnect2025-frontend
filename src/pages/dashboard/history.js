@@ -361,7 +361,7 @@ export default function HistoryPage() {
 
   return (
     <Layout title="Histori Data">
-      <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-6 md:mb-8 font-calistoga">
+      <h1 className="text-2xl md:text-3xl text-center font-extrabold text-gray-600 mb-6 md:mb-8 font-calistoga">
         Histori Data Sensor
       </h1>
 
@@ -384,14 +384,11 @@ export default function HistoryPage() {
 
       {/* Statistics Summary */}
       {filteredData.length > 0 && (
-        <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 font-calistoga mb-4">
-            📊 Statistik Data
-          </h2>
+        <div className="bg-none p-6 rounded-2xl mb-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-xs text-gray-600">Rata-rata Suhu</p>
-              <p className="text-2xl font-bold text-blue-600">
+            <div className="text-center p-4 bg-white rounded-lg">
+              <p className="text-xs text-gray-800">Rata-rata Suhu</p>
+              <p className="text-2xl font-bold text-sky-300">
                 {stats.avg.temperature}°C
               </p>
             </div>
@@ -417,8 +414,8 @@ export default function HistoryPage() {
         </div>
       )}
 
-      <div className="bg-white p-4 md:p-6 rounded-2xl shadow-xl border border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 pb-3 border-b border-gray-200">
+      <div className="bg-none p-4 md:p-6 rounded-2xl">
+        <div className="flex flex-col sm:flex-row justify-center sm:items-center mb-4 pb-3 border-b border-gray-200 gap-5">
           <h2 className="text-lg md:text-xl font-semibold text-gray-800 font-calistoga mb-2 sm:mb-0">
             Data Log Sensor ({filteredData.length} records)
           </h2>

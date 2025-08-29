@@ -1,4 +1,4 @@
-// src/pages/dashboard/thresholds.js - Fixed Version
+// src/pages/dashboard/thresholds.js - Fixed and Combined Version
 import Layout from "../../components/common/Layout";
 import { useState, useEffect } from "react";
 import { useSensorData } from "../../context/SensorContext";
@@ -21,16 +21,7 @@ export default function ThresholdSettingsPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/auth/login");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  // SEMUA HOOKS HARUS DIPANGGIL DI AWAL - TIDAK BOLEH SETELAH EARLY RETURN
   const {
     thresholds,
     updateThresholds,
@@ -46,6 +37,13 @@ export default function ThresholdSettingsPage() {
   const [hasChanges, setHasChanges] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
+  // Redirect jika belum autentikasi
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/auth/login");
+    }
+  }, [isAuthenticated, router]);
+
   // Update local state ketika thresholds dari context berubah
   useEffect(() => {
     setLocalThresholds(thresholds);
@@ -57,6 +55,11 @@ export default function ThresholdSettingsPage() {
       JSON.stringify(localThresholds) !== JSON.stringify(thresholds);
     setHasChanges(hasChanged);
   }, [localThresholds, thresholds]);
+
+  // EARLY RETURN SETELAH SEMUA HOOKS
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // Enhanced threshold change handler
   const handleThresholdChange = (sensor, type, value) => {
@@ -647,7 +650,7 @@ export default function ThresholdSettingsPage() {
         </div>
 
         {/* Help Section */}
-        <div className="mt-6 bg-sky-200/50   backdrop-blur-sm  border border-blue-200 rounded-lg p-4">
+        <div className="mt-6 bg-sky-200/50 backdrop-blur-sm border border-blue-200 rounded-lg p-4">
           <h3 className="font-semibold text-sky-900 mb-2">
             💡 Tips Penggunaan Threshold:
           </h3>
@@ -684,7 +687,7 @@ export default function ThresholdSettingsPage() {
         </div>
 
         {/* Storage Info */}
-        <div className="mt-4 bg-sky-200/50   backdrop-blur-sm rounded-lg p-4 border border-blue-200 ">
+        <div className="mt-4 bg-sky-200/50 backdrop-blur-sm rounded-lg p-4 border border-blue-200">
           <h3 className="font-semibold text-sky-900 mb-2">
             Informasi Penyimpanan:
           </h3>

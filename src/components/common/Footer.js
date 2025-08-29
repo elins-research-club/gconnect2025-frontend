@@ -1,4 +1,5 @@
 // src/components/common/Footer.js
+import Image from "next/image";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -26,21 +27,26 @@ const Footer = () => {
 
           {/* Bagian logo (rata kanan) */}
           <div className="flex items-center space-x-4">
-            {/* Contoh penggunaan tag <img> untuk logo */}
-            <img
+            <Image
               src="/img/Logo-DIKE.png"
               alt="Logo DIKE"
-              className="w-10 h-10 rounded-lg object-contain bg-gray-500"
+              width={40}
+              height={40}
+              className="rounded-lg object-contain bg-gray-500"
             />
-            <img
+            <Image
               src="/img/Logo-ERC.png"
               alt="Logo ERC"
-              className="w-10 h-10 rounded-lg object-contain bg-gray-500"
+              width={40}
+              height={40}
+              className="rounded-lg object-contain bg-gray-500"
             />
-            <img
+            <Image
               src="/img/Logo-UGM.png"
               alt="Logo UGM"
-              className="w-10 h-10 rounded-lg object-contain bg-gray-500"
+              width={40}
+              height={40}
+              className="rounded-lg object-contain bg-gray-500"
             />
           </div>
         </div>

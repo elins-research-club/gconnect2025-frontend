@@ -32,7 +32,7 @@ export default function ContactPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 flex flex-col justify-between">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 flex flex-col justify-between">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800 border-b border-gray-200 pb-3">
             Lokasi Kami
           </h2>
