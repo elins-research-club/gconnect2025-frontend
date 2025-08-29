@@ -28,24 +28,19 @@ const Footer = () => {
           <div className="flex items-center space-x-4">
             {/* Contoh penggunaan tag <img> untuk logo */}
             <img
-              src="/img/favicon.ico"
-              alt="Logo 1"
-              className="w-10 h-10 rounded-lg object-contain"
+              src="/img/Logo-DIKE.png"
+              alt="Logo DIKE"
+              className="w-10 h-10 rounded-lg object-contain bg-gray-500"
             />
             <img
-              src="/img/favicon.ico"
-              alt="Logo 2"
-              className="w-10 h-10 rounded-lg object-contain"
+              src="/img/Logo-ERC.png"
+              alt="Logo ERC"
+              className="w-10 h-10 rounded-lg object-contain bg-gray-500"
             />
             <img
-              src="/img/favicon.ico"
-              alt="Logo 3"
-              className="w-10 h-10 rounded-lg object-contain"
-            />
-            <img
-              src="/img/favicon.ico"
-              alt="Logo 4"
-              className="w-10 h-10 rounded-lg object-contain"
+              src="/img/Logo-UGM.png"
+              alt="Logo UGM"
+              className="w-10 h-10 rounded-lg object-contain bg-gray-500"
             />
           </div>
         </div>

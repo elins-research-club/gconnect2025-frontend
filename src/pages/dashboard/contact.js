@@ -5,27 +5,27 @@ import { Mail, Phone, MapPin } from "lucide-react";
 export default function ContactPage() {
   return (
     <Layout title="Kontak Support">
-      <h1 className="text-3xl font-extrabold mb-8 text-gray-800 ">
+      <h1 className="text-3xl font-bold mb-8 text-gray-600 text-center">
         Hubungi Customer Support
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Contact Info */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 flex flex-col justify-between">
+        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-gray-200 flex flex-col justify-between">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800 border-b border-gray-200 pb-3">
             Informasi Kontak
           </h2>
           <div className="space-y-4 text-gray-600">
             <p className="flex items-center text-lg">
-              <Mail className="mr-3 w-6 h-6 text-indigo-500" />{" "}
+              <Mail className="mr-3 w-6 h-6 text-sky-300" />{" "}
               erc.elinsugm@gmail.com
             </p>
             <p className="flex items-center text-lg">
-              <Phone className="mr-3 w-6 h-6 text-indigo-500" /> +62
-              811-1602-901 (Jesslyne)
+              <Phone className="mr-3 w-6 h-6 text-sky-300" /> +62 811-1602-901
+              (Jesslyne)
             </p>
             <p className="flex items-center text-lg">
-              <MapPin className="mr-3 w-10 h-10 text-indigo-500" /> Gedung C,
+              <MapPin className="mr-3 w-10 h-10 text-sky-300" /> Gedung C,
               Lantai 4, Sekip Utara, Bulaksumur, Sendowo, Sinduadi, Kec. Mlati,
               Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281
             </p>

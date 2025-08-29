@@ -74,7 +74,7 @@ export default function Charts({ history }) {
     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
       <ChartCard
         title="Air Temperature"
-        color="rgb(59, 130, 246)"
+        color="rgb(184, 230, 254)"
         data={history.temperature}
         options={chartOptions}
       />

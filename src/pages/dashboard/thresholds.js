@@ -306,7 +306,7 @@ export default function ThresholdSettingsPage() {
     <Layout title="Pengaturan Threshold">
       <div className="w-full">
         <div className="flex justify-between items-center mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 font-calistoga">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-600 font-calistoga">
             Pengaturan Threshold
           </h1>
           <div className="flex items-center space-x-2">
@@ -314,8 +314,8 @@ export default function ThresholdSettingsPage() {
               onClick={() => setShowPreview(!showPreview)}
               className={`p-2 rounded-lg transition-colors ${
                 showPreview
-                  ? "bg-blue-100 text-blue-600"
-                  : "bg-gray-100 hover:bg-gray-200"
+                  ? "bg-gray-400 text-white"
+                  : "bg-white hover:bg-gray-50 border border-gray-300"
               }`}
               title={showPreview ? "Sembunyikan preview" : "Tampilkan preview"}
             >
@@ -328,7 +328,7 @@ export default function ThresholdSettingsPage() {
 
             <button
               onClick={handleResetToDefaults}
-              className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+              className="px-3 py-2 bg-white text-black rounded-lg hover:bg-gray-50 transition-colors text-sm border border-gray-300"
               title="Reset ke default"
             >
               <RefreshCw className="w-4 h-4 inline mr-1" />
@@ -395,7 +395,7 @@ export default function ThresholdSettingsPage() {
           </div>
         )}
 
-        <div className="bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+        <div className="p-6">
           <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-800 font-calistoga">
               Batas Ambang Peringatan
@@ -410,8 +410,8 @@ export default function ThresholdSettingsPage() {
             )}
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <p className="text-blue-800 text-sm">
+          <div className="bg-sky-200/25 backdrop-blur-sm border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-gray-600 text-sm">
               💡 <strong>Tips:</strong> Kosongkan field untuk tidak menggunakan
               batas tersebut. Anda bisa mengatur hanya batas minimum, maksimum,
               atau keduanya sesuai kebutuhan.
@@ -431,7 +431,7 @@ export default function ThresholdSettingsPage() {
                   className={`mb-6 p-6 rounded-xl shadow-inner transition-all duration-300 ${
                     sensorAlerts.length > 0
                       ? "border-2 border-red-300 bg-red-50"
-                      : "border border-gray-200 bg-gray-50"
+                      : "border border-gray-200 bg-white/50 backdrop-blur-sm"
                   }`}
                 >
                   <div className="flex justify-between items-center mb-4">
@@ -564,7 +564,7 @@ export default function ThresholdSettingsPage() {
                   </div>
 
                   {/* Current threshold status */}
-                  <div className="mt-4 p-3 bg-gray-100 rounded-lg text-sm text-gray-700">
+                  <div className="mt-4 p-3 bg-sky-300/50 rounded-lg text-sm text-gray-700">
                     <strong>Status Threshold:</strong>
                     {(() => {
                       const hasMin =
@@ -647,11 +647,11 @@ export default function ThresholdSettingsPage() {
         </div>
 
         {/* Help Section */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-800 mb-2">
+        <div className="mt-6 bg-sky-200/50   backdrop-blur-sm  border border-blue-200 rounded-lg p-4">
+          <h3 className="font-semibold text-sky-900 mb-2">
             💡 Tips Penggunaan Threshold:
           </h3>
-          <ul className="text-sm text-blue-700 space-y-1">
+          <ul className="text-sm text-sky-700 space-y-1">
             <li>
               • <strong>Field Kosong:</strong> Biarkan kosong jika tidak ingin
               menggunakan batas tersebut
@@ -684,11 +684,11 @@ export default function ThresholdSettingsPage() {
         </div>
 
         {/* Storage Info */}
-        <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h3 className="font-semibold text-yellow-800 mb-2">
-            💾 Informasi Penyimpanan:
+        <div className="mt-4 bg-sky-200/50   backdrop-blur-sm rounded-lg p-4 border border-blue-200 ">
+          <h3 className="font-semibold text-sky-900 mb-2">
+            Informasi Penyimpanan:
           </h3>
-          <p className="text-sm text-yellow-700">
+          <p className="text-sm text-sky-700">
             Pengaturan threshold dan alert history disimpan secara lokal di
             browser Anda. Data akan tetap tersimpan bahkan setelah menutup
             aplikasi, namun akan hilang jika Anda membersihkan cache browser

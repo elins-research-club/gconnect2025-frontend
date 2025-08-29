@@ -1,13 +1,238 @@
+// import { useState, useEffect, useCallback, useRef } from "react";
+// import { useSensorData } from "../context/SensorContext";
+
+// export default function useWeatherDemo() {
+//   const { addToHistory, setCurrentData } = useSensorData();
+//   const [data, setData] = useState(null);
+//   const [history, setHistory] = useState({
+//     temperature: [],
+//     humidity: [],
+//     soilHumidity: [],
+//     windSpeed: [],
+//     timestamps: [],
+//   });
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [isWsConnected, setIsWsConnected] = useState(false);
+
+//   const wsRef = useRef(null);
+//   const reconnectTimeoutRef = useRef(null);
+//   const reconnectAttemptsRef = useRef(0);
+//   const intervalRef = useRef(null);
+
+//   const API_BASE =
+//     process.env.NEXT_PUBLIC_API_URL || "https://api.pkmlab.my.id/api/v1";
+//   const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "wss://api.pkmlab.my.id/ws";
+//   const MAX_RECONNECT_ATTEMPTS = 5;
+
+//   const contextCallbacks = useRef({ addToHistory, setCurrentData });
+//   useEffect(() => {
+//     contextCallbacks.current = { addToHistory, setCurrentData };
+//   }, [addToHistory, setCurrentData]);
+
+//   // format raw data
+//   const processSensorData = useCallback((rawData) => {
+//     if (!rawData || typeof rawData !== "object") return null; // ✅ handle null
+
+//     return {
+//       temperature: rawData.temperature,
+//       humidity: rawData.humidity,
+//       soilHumidity: rawData.soil_moisture,
+//       windSpeed: rawData.wind_speed,
+//       // rainDetection: Boolean(rawData.rain_detection),
+//       rainDetection: rawData.rain_detection === true,
+//       lightIntensity: rawData.light_intensity,
+//       id: rawData.id,
+//       timestamp: rawData.timestamp,
+//       location: "PKM Lab Sensor",
+//     };
+//   }, []);
+
+//   // update chart history
+//   const updateHistoryState = useCallback((newSensorData) => {
+//     const formattedTimestamp = new Date(
+//       newSensorData.timestamp
+//     ).toLocaleTimeString([], {
+//       hour: "2-digit",
+//       minute: "2-digit",
+//     });
+
+//     setHistory((prev) => {
+//       const maxPoints = 20;
+//       const trim = (arr) => arr.slice(-(maxPoints - 1));
+
+//       return {
+//         temperature: [...trim(prev.temperature), newSensorData.temperature],
+//         humidity: [...trim(prev.humidity), newSensorData.humidity],
+//         soilHumidity: [...trim(prev.soilHumidity), newSensorData.soilHumidity],
+//         windSpeed: [...trim(prev.windSpeed), newSensorData.windSpeed],
+//         timestamps: [...trim(prev.timestamps), formattedTimestamp],
+//       };
+//     });
+//   }, []);
+
+//   // fetch API awal (latest + history)
+//   const fetchInitialData = useCallback(async () => {
+//     setError(null);
+//     setIsLoading(true);
+//     try {
+//       const [latestRes, historyRes] = await Promise.all([
+//         fetch(`${API_BASE}/data/latest`, {
+//           headers: { "Content-Type": "application/json" }, // ? fix forbidden
+//         }),
+//         fetch(`${API_BASE}/data/history`, {
+//           headers: { "Content-Type": "application/json" }, // ? fix forbidden
+//         }),
+//       ]);
+
+//       if (!latestRes.ok) throw new Error(`Latest failed: ${latestRes.status}`);
+//       if (!historyRes.ok)
+//         throw new Error(`History failed: ${historyRes.status}`);
+
+//       const latestData = await latestRes.json();
+//       const historyData = await historyRes.json();
+
+//       const latestSensorData = processSensorData(latestData);
+//       if (latestSensorData) {
+//         setData(latestSensorData);
+//         console.log("API latest data:", latestSensorData);
+//         contextCallbacks.current.setCurrentData(latestSensorData);
+//         contextCallbacks.current.addToHistory(latestSensorData);
+//       }
+
+//       if (Array.isArray(historyData)) {
+//         setHistory({
+//           temperature: historyData.map((d) => d.temperature),
+//           humidity: historyData.map((d) => d.humidity),
+//           soilHumidity: historyData.map((d) => d.soil_moisture),
+//           windSpeed: historyData.map((d) => d.wind_speed),
+//           timestamps: historyData.map((d) =>
+//             new Date(d.timestamp).toLocaleTimeString([], {
+//               hour: "2-digit",
+//               minute: "2-digit",
+//             })
+//           ),
+//         });
+//       }
+//     } catch (err) {
+//       console.error("API error:", err);
+//       setError(`Failed to fetch: ${err.message}`);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   }, [API_BASE, processSensorData]);
+
+//   // WebSocket
+//   const setupWebSocket = useCallback(() => {
+//     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
+
+//     wsRef.current = new WebSocket(WS_URL);
+
+//     wsRef.current.onopen = () => {
+//       setIsWsConnected(true);
+//       reconnectAttemptsRef.current = 0;
+//       console.log("✅ WS connected");
+//     };
+
+//     wsRef.current.onmessage = (event) => {
+//       try {
+//         const rawData = JSON.parse(event.data);
+//         const sensorData = processSensorData(rawData);
+//         if (sensorData) {
+//           setData(sensorData);
+//           console.log("WS incoming data:", sensorData);
+//           contextCallbacks.current.setCurrentData(sensorData);
+//           contextCallbacks.current.addToHistory(sensorData);
+//           updateHistoryState(sensorData);
+//         }
+//       } catch (err) {
+//         console.error("WS parse error:", err);
+//       }
+//     };
+
+//     wsRef.current.onclose = () => {
+//       setIsWsConnected(false);
+//       console.log("❌ WS disconnected");
+//       if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+//         const delay = 1000 * Math.pow(2, reconnectAttemptsRef.current);
+//         reconnectTimeoutRef.current = setTimeout(() => {
+//           reconnectAttemptsRef.current++;
+//           setupWebSocket();
+//         }, delay);
+//       } else {
+//         setError("WebSocket lost. Please reload.");
+//       }
+//     };
+
+//     wsRef.current.onerror = (err) => {
+//       console.error("WS error:", err);
+//       setError("WebSocket error.");
+//     };
+//   }, [WS_URL, processSensorData, updateHistoryState]);
+
+//   // // lifecycle
+//   // useEffect(() => {
+//   //   fetchInitialData();
+//   //   setupWebSocket();
+
+//   //   // ? auto refetch tiap 1 menit, tanpa refresh halaman
+//   //   intervalRef.current = setInterval(() => {
+//   //     fetchInitialData();
+//   //   }, 60000);
+
+//   //   return () => {
+//   //     if (wsRef.current) wsRef.current.close();
+//   //     if (reconnectTimeoutRef.current)
+//   //       clearTimeout(reconnectTimeoutRef.current);
+//   //     if (intervalRef.current) clearInterval(intervalRef.current);
+//   //   };
+//   // }, [fetchInitialData, setupWebSocket]);
+
+//   // lifecycle
+//   useEffect(() => {
+//     fetchInitialData(); // ✅ sekali aja
+//     setupWebSocket();
+
+//     return () => {
+//       if (wsRef.current) wsRef.current.close();
+//       if (reconnectTimeoutRef.current)
+//         clearTimeout(reconnectTimeoutRef.current);
+//     };
+//   }, [fetchInitialData, setupWebSocket]);
+
+//   // localStorage sync
+//   useEffect(() => {
+//     const saved = localStorage.getItem("weatherHistory");
+//     if (saved) {
+//       try {
+//         setHistory(JSON.parse(saved));
+//       } catch {}
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     if (history.timestamps.length > 0) {
+//       localStorage.setItem("weatherHistory", JSON.stringify(history));
+//     }
+//   }, [history]);
+
+//   return {
+//     data,
+//     history,
+//     isLoading,
+//     error,
+//     isApiConnected: !!data && !isLoading,
+//     isWsConnected,
+//     refetch: fetchInitialData,
+//   };
+// }
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSensorData } from "../context/SensorContext";
 
 export default function useWeatherDemo() {
   const { addToHistory, setCurrentData } = useSensorData();
   const [data, setData] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [wsConnected, setWsConnected] = useState(false);
   const [history, setHistory] = useState({
     temperature: [],
     humidity: [],
@@ -15,268 +240,237 @@ export default function useWeatherDemo() {
     windSpeed: [],
     timestamps: [],
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true); // ✅ Tambah state khusus initial loading
+  const [error, setError] = useState(null);
+  const [isWsConnected, setIsWsConnected] = useState(false);
 
-  // WebSocket reference
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const reconnectAttemptsRef = useRef(0);
-  const maxReconnectAttempts = 5;
+  const intervalRef = useRef(null);
 
-  // API Configuration
   const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1/data";
-  const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000/ws";
+    process.env.NEXT_PUBLIC_API_URL || "https://api.pkmlab.my.id/api/v1";
+  const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "wss://api.pkmlab.my.id/ws";
+  const MAX_RECONNECT_ATTEMPTS = 5;
 
-  // 📹 Load history dari localStorage ketika hook pertama kali jalan
+  const contextCallbacks = useRef({ addToHistory, setCurrentData });
+  useEffect(() => {
+    contextCallbacks.current = { addToHistory, setCurrentData };
+  }, [addToHistory, setCurrentData]);
+
+  // format raw data
+  const processSensorData = useCallback((rawData) => {
+    if (!rawData || typeof rawData !== "object") return null;
+
+    console.log("🔍 Raw data received:", rawData); // ✅ Debug log
+
+    const processed = {
+      temperature: rawData.temperature,
+      humidity: rawData.humidity,
+      soilHumidity: rawData.soil_moisture,
+      windSpeed: rawData.wind_speed,
+      rainDetection:
+        rawData.rain_detection !== undefined
+          ? rawData.rain_detection === true || rawData.rain_detection === "true"
+          : false, // ✅ Default ke false jika undefined
+      lightIntensity: rawData.light_intensity,
+      id: rawData.id,
+      timestamp: rawData.timestamp || new Date().toISOString(),
+      location: "PKM Lab Sensor",
+    };
+
+    console.log("✅ Processed data:", processed); // ✅ Debug log
+    return processed;
+  }, []);
+
+  // update chart history
+  const updateHistoryState = useCallback((newSensorData) => {
+    const formattedTimestamp = new Date(
+      newSensorData.timestamp
+    ).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    setHistory((prev) => {
+      const maxPoints = 20;
+      const trim = (arr) => arr.slice(-(maxPoints - 1));
+
+      return {
+        temperature: [...trim(prev.temperature), newSensorData.temperature],
+        humidity: [...trim(prev.humidity), newSensorData.humidity],
+        soilHumidity: [...trim(prev.soilHumidity), newSensorData.soilHumidity],
+        windSpeed: [...trim(prev.windSpeed), newSensorData.windSpeed],
+        timestamps: [...trim(prev.timestamps), formattedTimestamp],
+      };
+    });
+  }, []);
+
+  // fetch API awal (latest + history)
+  const fetchInitialData = useCallback(async () => {
+    setError(null);
+    // ✅ Hanya set loading true untuk initial load atau refetch manual
+    if (isInitialLoading) {
+      setIsLoading(true);
+    }
+
+    try {
+      const [latestRes, historyRes] = await Promise.all([
+        fetch(`${API_BASE}/data/latest`, {
+          headers: { "Content-Type": "application/json" },
+        }),
+        fetch(`${API_BASE}/data/history`, {
+          headers: { "Content-Type": "application/json" },
+        }),
+      ]);
+
+      if (!latestRes.ok) throw new Error(`Latest failed: ${latestRes.status}`);
+      if (!historyRes.ok)
+        throw new Error(`History failed: ${historyRes.status}`);
+
+      const latestData = await latestRes.json();
+      const historyData = await historyRes.json();
+
+      const latestSensorData = processSensorData(latestData);
+      if (latestSensorData) {
+        setData(latestSensorData);
+        console.log("API latest data:", latestSensorData);
+        contextCallbacks.current.setCurrentData(latestSensorData);
+        contextCallbacks.current.addToHistory(latestSensorData);
+      }
+
+      if (Array.isArray(historyData)) {
+        setHistory({
+          temperature: historyData.map((d) => d.temperature),
+          humidity: historyData.map((d) => d.humidity),
+          soilHumidity: historyData.map((d) => d.soil_moisture),
+          windSpeed: historyData.map((d) => d.wind_speed),
+          timestamps: historyData.map((d) =>
+            new Date(d.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          ),
+        });
+      }
+    } catch (err) {
+      console.error("API error:", err);
+      setError(`Failed to fetch: ${err.message}`);
+    } finally {
+      // ✅ Set loading false setelah initial data dimuat
+      setIsLoading(false);
+      setIsInitialLoading(false);
+    }
+  }, [API_BASE, processSensorData, isInitialLoading]);
+
+  // WebSocket
+  const setupWebSocket = useCallback(() => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
+
+    wsRef.current = new WebSocket(WS_URL);
+
+    wsRef.current.onopen = () => {
+      setIsWsConnected(true);
+      reconnectAttemptsRef.current = 0;
+      console.log("✅ WS connected");
+
+      // ✅ Setelah WS terhubung, pastikan loading false
+      if (!isInitialLoading) {
+        setIsLoading(false);
+      }
+    };
+
+    wsRef.current.onmessage = (event) => {
+      try {
+        const rawData = JSON.parse(event.data);
+        const sensorData = processSensorData(rawData);
+        if (sensorData) {
+          // ✅ Update data tanpa mengubah loading state
+          setData(sensorData);
+          console.log("WS incoming data:", sensorData);
+          contextCallbacks.current.setCurrentData(sensorData);
+          contextCallbacks.current.addToHistory(sensorData);
+          updateHistoryState(sensorData);
+
+          // ✅ Pastikan loading false saat data masuk
+          if (isLoading) {
+            setIsLoading(false);
+          }
+        }
+      } catch (err) {
+        console.error("WS parse error:", err);
+      }
+    };
+
+    wsRef.current.onclose = () => {
+      setIsWsConnected(false);
+      console.log("❌ WS disconnected");
+      if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
+        const delay = 1000 * Math.pow(2, reconnectAttemptsRef.current);
+        reconnectTimeoutRef.current = setTimeout(() => {
+          reconnectAttemptsRef.current++;
+          setupWebSocket();
+        }, delay);
+      } else {
+        setError("WebSocket lost. Please reload.");
+      }
+    };
+
+    wsRef.current.onerror = (err) => {
+      console.error("WS error:", err);
+      setError("WebSocket error.");
+    };
+  }, [
+    WS_URL,
+    processSensorData,
+    updateHistoryState,
+    isLoading,
+    isInitialLoading,
+  ]);
+
+  // lifecycle
+  useEffect(() => {
+    fetchInitialData();
+    setupWebSocket();
+
+    return () => {
+      if (wsRef.current) wsRef.current.close();
+      if (reconnectTimeoutRef.current)
+        clearTimeout(reconnectTimeoutRef.current);
+    };
+  }, [fetchInitialData, setupWebSocket]);
+
+  // localStorage sync
   useEffect(() => {
     const saved = localStorage.getItem("weatherHistory");
     if (saved) {
       try {
         setHistory(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse saved history:", e);
-      }
+      } catch {}
     }
   }, []);
 
-  // 📹 Simpan history ke localStorage setiap kali ada perubahan
   useEffect(() => {
     if (history.timestamps.length > 0) {
       localStorage.setItem("weatherHistory", JSON.stringify(history));
     }
   }, [history]);
 
-  // API fetch functions
-  const fetchLatest = async () => {
-    const res = await fetch(`${API_BASE}/latest`);
-    if (!res.ok) throw new Error(`Failed to fetch latest: ${res.status}`);
-    return await res.json();
-  };
-
-  const fetchHistory = async () => {
-    const res = await fetch(`${API_BASE}/history`);
-    if (!res.ok) throw new Error(`Failed to fetch history: ${res.status}`);
-    return await res.json();
-  };
-
-  // Process sensor data dari backend
-  const processSensorData = (rawData) => {
-    return {
-      temperature: rawData.temperature,
-      humidity: rawData.humidity,
-      soilHumidity: rawData.soil_moisture,
-      windSpeed: rawData.wind_speed,
-      rainDetection: rawData.rain_detection,
-      lightIntensity: rawData.light_intensity,
-      id: rawData.id,
-      timestamp: rawData.timestamp,
-      location: "PKM Lab Sensor",
-    };
-  };
-
-  // Update history untuk chart
-  const updateHistory = useCallback((newData) => {
-    setHistory((prev) => {
-      const maxPoints = 20; // Bisa diperbesar untuk chart yang lebih panjang
-
-      return {
-        temperature: [
-          ...prev.temperature.slice(-(maxPoints - 1)),
-          parseFloat(newData.temperature),
-        ],
-        humidity: [
-          ...prev.humidity.slice(-(maxPoints - 1)),
-          parseFloat(newData.humidity),
-        ],
-        soilHumidity: [
-          ...prev.soilHumidity.slice(-(maxPoints - 1)),
-          parseFloat(newData.soilHumidity),
-        ],
-        windSpeed: [
-          ...prev.windSpeed.slice(-(maxPoints - 1)),
-          parseFloat(newData.windSpeed),
-        ],
-        timestamps: [
-          ...prev.timestamps.slice(-(maxPoints - 1)),
-          new Date(newData.timestamp).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-        ],
-      };
-    });
-  }, []);
-
-  // WebSocket setup and handlers
-  const setupWebSocket = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      return; // Already connected
-    }
-
-    try {
-      console.log("🔌 Connecting to WebSocket:", WS_URL);
-      wsRef.current = new WebSocket(WS_URL);
-
-      wsRef.current.onopen = () => {
-        console.log("✅ WebSocket connected");
-        setWsConnected(true);
-        setError(null);
-        reconnectAttemptsRef.current = 0;
-      };
-
-      wsRef.current.onmessage = (event) => {
-        try {
-          const rawData = JSON.parse(event.data);
-          console.log("📡 Received WebSocket data:", rawData);
-
-          const sensorData = processSensorData(rawData);
-
-          // Update state
-          setData(sensorData);
-          setCurrentData(sensorData);
-          addToHistory(sensorData);
-          updateHistory(sensorData);
-        } catch (err) {
-          console.error("❌ Failed to process WebSocket message:", err);
-        }
-      };
-
-      wsRef.current.onclose = (event) => {
-        console.log("🔌 WebSocket disconnected:", event.code, event.reason);
-        setWsConnected(false);
-
-        // Auto-reconnect logic
-        if (reconnectAttemptsRef.current < maxReconnectAttempts) {
-          const delay = Math.min(
-            1000 * Math.pow(2, reconnectAttemptsRef.current),
-            30000
-          );
-          console.log(
-            `🔄 Reconnecting in ${delay}ms... (attempt ${
-              reconnectAttemptsRef.current + 1
-            })`
-          );
-
-          reconnectTimeoutRef.current = setTimeout(() => {
-            reconnectAttemptsRef.current++;
-            setupWebSocket();
-          }, delay);
-        } else {
-          console.log("❌ Max reconnection attempts reached");
-          setError("WebSocket connection lost. Please refresh the page.");
-        }
-      };
-
-      wsRef.current.onerror = (error) => {
-        console.error("❌ WebSocket error:", error);
-        setError("WebSocket connection error");
-      };
-    } catch (err) {
-      console.error("❌ Failed to setup WebSocket:", err);
-      setError("Failed to setup WebSocket connection");
-    }
-  }, [WS_URL, setCurrentData, addToHistory, updateHistory]);
-
-  // Initial data fetch
-  const fetchInitialData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      console.log("📊 Fetching initial data...");
-
-      // 📹 Ambil data terbaru
-      const latest = await fetchLatest();
-      const sensorData = processSensorData(latest);
-
-      setData(sensorData);
-      setCurrentData(sensorData);
-      addToHistory(sensorData);
-      setIsConnected(true);
-
-      // 📹 Ambil data riwayat untuk chart
-      const historyData = await fetchHistory();
-
-      setHistory({
-        temperature: historyData.map((d) => d.temperature),
-        humidity: historyData.map((d) => d.humidity),
-        soilHumidity: historyData.map((d) => d.soil_moisture),
-        windSpeed: historyData.map((d) => d.wind_speed),
-        timestamps: historyData.map((d) =>
-          new Date(d.timestamp).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        ),
-      });
-
-      console.log("✅ Initial data loaded successfully");
-      return sensorData;
-    } catch (err) {
-      console.error("❌ Backend API Error:", err);
-      setError(`Failed to load initial data: ${err.message}`);
-      setIsConnected(false);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [addToHistory, setCurrentData]);
-
-  // Manual refresh function
-  const refetch = useCallback(async () => {
+  // ✅ Manual refetch function yang akan set loading true
+  const manualRefetch = useCallback(async () => {
+    setIsLoading(true);
     await fetchInitialData();
   }, [fetchInitialData]);
-
-  // Cleanup function
-  const cleanup = useCallback(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
-    }
-  }, []);
-
-  // Main effect: Load initial data then setup WebSocket
-  useEffect(() => {
-    let mounted = true;
-
-    const initialize = async () => {
-      if (!mounted) return;
-
-      // 1. Fetch initial data first
-      await fetchInitialData();
-
-      if (!mounted) return;
-
-      // 2. Setup WebSocket for realtime updates
-      setupWebSocket();
-    };
-
-    initialize();
-
-    // Cleanup on unmount
-    return () => {
-      mounted = false;
-      cleanup();
-    };
-  }, []); // Empty dependency array - only run once
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return cleanup;
-  }, [cleanup]);
 
   return {
     data,
     history,
-    isConnected,
-    wsConnected,
+    isLoading: isInitialLoading || isLoading, // ✅ Loading true hanya saat initial atau manual refetch
     error,
-    loading,
-    refetch,
+    isApiConnected: !!data && !isInitialLoading,
+    isWsConnected,
+    refetch: manualRefetch, // ✅ Gunakan manual refetch
   };
 }

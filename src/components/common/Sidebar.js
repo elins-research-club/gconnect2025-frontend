@@ -79,8 +79,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
       >
         {/* The PkM Lab title is now only displayed when the sidebar is not collapsed */}
         {!isCollapsed && (
-          <div className="text-xl font-extrabold text-gray-900 tracking-wide transition-all duration-300 transform hover:scale-105">
-            PkM Lab
+          <div className="text-lg font-extrabold text-gray-600 tracking-wide transition-all duration-300 transform hover:scale-105">
+            PkM Dashboard
           </div>
         )}
         <button

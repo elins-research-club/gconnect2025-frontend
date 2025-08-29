@@ -1,0 +1,2 @@
+CONNECT ws://127.0.0.1:8000/ws
+X-API-KEY: gconnect-2025
