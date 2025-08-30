@@ -26,9 +26,9 @@ export default function QuickSummary({ alerts, lastUpdatedTime, isConnected }) {
           value={isConnected ? "Online" : "Demo"}
         />
         <StatusItem
-          icon={<Zap className="w-5 text-white" />}
+          icon={<Zap className="w-5 text-black" />}
           label="Data Source"
-          value="Weather API"
+          value="PkM Lab Sensor"
         />
         <StatusItem
           icon={<BellRing className="w-5 text-rose-600" />}
@@ -76,8 +76,8 @@ export default function QuickSummary({ alerts, lastUpdatedTime, isConnected }) {
       )}
 
       <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-        💡 <strong>System Info:</strong> Using OpenWeatherMap API for weather
-        data. Soil moisture is simulated. Alerts monitor thresholds.
+        💡 <strong>System Info:</strong> Using PkM Lab sensor at Sringharjo for
+        weather data.
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mt-4">

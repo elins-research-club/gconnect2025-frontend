@@ -37,11 +37,11 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
   const authenticatedNavItems = [
     { name: "Threshold", href: "/dashboard/thresholds", icon: Sliders },
     { name: "Data History", href: "/dashboard/history", icon: History },
-    {
-      name: "Sensor Status",
-      href: "/dashboard/sensor-status",
-      icon: Thermometer,
-    },
+    // {
+    //   name: "Sensor Status",
+    //   href: "/dashboard/sensor-status",
+    //   icon: Thermometer,
+    // },
   ];
 
   // Navigasi yang selalu ditampilkan
@@ -200,7 +200,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
         ) : (
           <Link href="/auth/login" passHref legacyBehavior>
             <button
-              className={`w-full flex items-center justify-center p-3 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
+              className={`w-full flex items-center justify-center p-3 rounded-lg bg-sky-400 hover:bg-sky-300 text-white font-medium transition-all duration-300 transform hover:scale-105 hover:shadow-md ${
                 isCollapsed ? "w-12 h-12 mx-auto" : ""
               }`}
               title={isCollapsed ? "Login" : ""}
