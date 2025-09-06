@@ -36,7 +36,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
   // Menu "Account Settings" telah dihapus sesuai permintaan
   const authenticatedNavItems = [
     { name: "Threshold", href: "/dashboard/thresholds", icon: Sliders },
-    { name: "Data History", href: "/dashboard/history", icon: History },
+
     // {
     //   name: "Sensor Status",
     //   href: "/dashboard/sensor-status",
@@ -49,6 +49,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
   const publicNavItems = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Contact", href: "/dashboard/contact", icon: MessageCircle },
+    { name: "Data History", href: "/dashboard/history", icon: History },
   ];
 
   // Menggabungkan item navigasi berdasarkan status autentikasi

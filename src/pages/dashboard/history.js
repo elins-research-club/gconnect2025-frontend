@@ -361,7 +361,7 @@ export default function HistoryPage() {
 
   return (
     <Layout title="Histori Data">
-      <h1 className="text-2xl md:text-3xl text-center font-extrabold text-gray-600 mb-6 md:mb-8 font-calistoga">
+      <h1 className="pt-6 text-2xl md:text-3xl text-center font-extrabold text-gray-600 mb-2 md:mb-8 font-calistoga">
         Histori Data Sensor
       </h1>
 
@@ -385,28 +385,28 @@ export default function HistoryPage() {
       {/* Statistics Summary */}
       {filteredData.length > 0 && (
         <div className="bg-none p-6 rounded-2xl mb-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-4 bg-white rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-12">
+            <div className="text-center p-4 bg-white rounded-lg border border-gray-300">
               <p className="text-xs text-gray-800">Rata-rata Suhu</p>
               <p className="text-2xl font-bold text-sky-300">
                 {stats.avg.temperature}°C
               </p>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
+            <div className="text-center p-4 bg-white/75 backdrop-blur-md rounded-lg border border-gray-300">
               <p className="text-xs text-gray-600">Rata-rata Kelembapan</p>
-              <p className="text-2xl font-bold text-purple-600">
+              <p className="text-2xl font-bold text-gray-500">
                 {stats.avg.humidity}%
               </p>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
+            <div className="text-center p-4 bg-white/75 backdrop-blur-md rounded-lg border border-gray-300">
               <p className="text-xs text-gray-600">Rata-rata Soil</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-2xl font-bold text-gray-500">
                 {stats.avg.soilHumidity}%
               </p>
             </div>
-            <div className="text-center p-4 bg-indigo-50 rounded-lg">
+            <div className="text-center p-4 bg-white rounded-lg border border-gray-300">
               <p className="text-xs text-gray-600">Rata-rata Angin</p>
-              <p className="text-2xl font-bold text-indigo-600">
+              <p className="text-2xl font-bold text-sky-300">
                 {stats.avg.windSpeed} km/h
               </p>
             </div>
@@ -414,7 +414,7 @@ export default function HistoryPage() {
         </div>
       )}
 
-      <div className="bg-none p-4 md:p-6 rounded-2xl">
+      <div className="bg-none px-4 md:px-6 rounded-2xl">
         <div className="flex flex-col sm:flex-row justify-center sm:items-center mb-4 pb-3 border-b border-gray-200 gap-5">
           <h2 className="text-lg md:text-xl font-semibold text-gray-800 font-calistoga mb-2 sm:mb-0">
             Data Log Sensor ({filteredData.length} records)
@@ -495,7 +495,7 @@ export default function HistoryPage() {
         <button
           onClick={handleExport}
           disabled={filteredData.length === 0}
-          className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white font-bold py-3 px-4 md:px-6 rounded-lg transition-all duration-300 flex items-center justify-center mb-6 cursor-pointer transform hover:scale-[1.02] w-full sm:w-auto text-sm disabled:cursor-not-allowed"
+          className="bg-sky-400 hover:bg-sky-300 disabled:bg-gray-400 text-white font-bold py-3 px-4 md:px-6 rounded-lg transition-all duration-300 flex items-center justify-center mb-6 cursor-pointer transform hover:scale-[1.02] w-full sm:w-auto text-sm disabled:cursor-not-allowed"
         >
           <FileText className="mr-2 w-4 h-4" /> Export PDF Report
         </button>
@@ -636,7 +636,7 @@ export default function HistoryPage() {
                 : ` dari data simulasi`}
             </div>
             <div className="text-xs text-gray-500">
-              * Data diperbarui secara real-time dari Weather API
+              * Data diperbarui secara real-time dari Sensor
             </div>
           </div>
         )}
@@ -646,7 +646,7 @@ export default function HistoryPage() {
           <p className="text-xs text-blue-800">
             <strong>📊 Sumber Data:</strong>{" "}
             {historicalData.length > 0
-              ? `${historicalData.length} record real-time dari Weather API dan simulasi`
+              ? `${historicalData.length} record real-time dari sensor`
               : "Data simulasi untuk demo"}
           </p>
           {historicalData.length > 0 && (

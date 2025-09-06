@@ -26,27 +26,41 @@ const Footer = () => {
           </div>
 
           {/* Bagian logo (rata kanan) */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <Image
+              src="/img/Logo-UGM.png"
+              alt="Logo UGM"
+              width={50}
+              height={50}
+              className="rounded-xl object-contain bg-gray-100 border border-gray-400"
+            />
             <Image
               src="/img/Logo-DIKE.png"
               alt="Logo DIKE"
-              width={40}
-              height={40}
-              className="rounded-lg object-contain bg-gray-500"
+              width={50}
+              height={50}
+              className="rounded-xl object-contain bg-gray-100 border border-gray-400"
+            />
+            <Image
+              src="/img/Logo-LabSKJ.png"
+              alt="Logo Lab SKJ"
+              width={50}
+              height={50}
+              className="rounded-xl object-contain bg-gray-100 border border-gray-400"
+            />
+            <Image
+              src="/img/logo-Labelins.png"
+              alt="Logo Lab Elins"
+              width={50}
+              height={50}
+              className="rounded-xl object-contain bg-gray-100 border border-gray-400"
             />
             <Image
               src="/img/Logo-ERC.png"
               alt="Logo ERC"
-              width={40}
-              height={40}
-              className="rounded-lg object-contain bg-gray-500"
-            />
-            <Image
-              src="/img/Logo-UGM.png"
-              alt="Logo UGM"
-              width={40}
-              height={40}
-              className="rounded-lg object-contain bg-gray-500"
+              width={50}
+              height={50}
+              className="rounded-xl object-contain bg-gray-100 border border-gray-400"
             />
           </div>
         </div>
