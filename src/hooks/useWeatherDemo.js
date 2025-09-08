@@ -43,7 +43,7 @@ export default function useWeatherDemo() {
       soilHumidity: rawData.soil_moisture,
       windSpeed: rawData.wind_speed
         ? parseFloat(rawData.wind_speed) / 10
-        : null, //data dari database akan dibagi 10 terlebih dahulu sebelum ditampilkan
+        : null, //data dari database akan dibagi 10 terlebih dahulu sebelum ditampilkan di fe
       rainDetection:
         rawData.rain_detection !== undefined
           ? rawData.rain_detection === true || rawData.rain_detection === "true"
