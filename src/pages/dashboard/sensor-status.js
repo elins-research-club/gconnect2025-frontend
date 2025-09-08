@@ -6,7 +6,7 @@ export default function SensorStatusPage() {
   const sensorStatuses = [
     {
       id: 1,
-      name: "Air Temperature",
+      name: "Suhu Udara",
       status: "Online",
       lastReport: "Baru saja",
       health: "Normal",
@@ -14,7 +14,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 2,
-      name: "Air Humidity",
+      name: "Kelembapan Udara",
       status: "Online",
       lastReport: "1 menit lalu",
       health: "Normal",
@@ -22,7 +22,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 3,
-      name: "Soil Moisture",
+      name: "Kelembaban Tanah",
       status: "Online",
       lastReport: "5 menit lalu",
       health: "Perlu Kalibrasi",
@@ -30,7 +30,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 4,
-      name: "Wind Speed",
+      name: "Kecepatan Angin",
       status: "Offline",
       lastReport: "1 jam lalu",
       health: "Tidak Terhubung",
@@ -38,7 +38,7 @@ export default function SensorStatusPage() {
     },
     {
       id: 5,
-      name: "Rain Detection",
+      name: "Pendeteksi Hujan",
       status: "Online",
       lastReport: "Baru saja",
       health: "Normal",

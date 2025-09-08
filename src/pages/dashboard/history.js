@@ -327,11 +327,11 @@ export default function HistoryPage() {
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Kelembapan:</span>
+          <span className="text-gray-600">Kelembapan Udara:</span>
           <span className="font-medium text-gray-900">{item.humidity}%</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Soil:</span>
+          <span className="text-gray-600">Kelembapan Tanah:</span>
           <span className="font-medium text-gray-900">
             {item.soilHumidity}%
           </span>
@@ -497,7 +497,7 @@ export default function HistoryPage() {
           disabled={filteredData.length === 0}
           className="bg-sky-400 hover:bg-sky-300 disabled:bg-gray-400 text-white font-bold py-3 px-4 md:px-6 rounded-lg transition-all duration-300 flex items-center justify-center mb-6 cursor-pointer transform hover:scale-[1.02] w-full sm:w-auto text-sm disabled:cursor-not-allowed"
         >
-          <FileText className="mr-2 w-4 h-4" /> Export PDF Report
+          <FileText className="mr-2 w-4 h-4" /> Ekspor Laporan PDF
         </button>
 
         {/* Data Display */}
@@ -533,13 +533,13 @@ export default function HistoryPage() {
                       Suhu °C
                     </th>
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Kelembapan (%)
+                      Kelembapan Udara(%)
                     </th>
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Soil Moisture (%)
+                      Kelembapan Tanah (%)
                     </th>
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Wind Speed (km/h)
+                      Kecepatan Angin(km/h)
                     </th>
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Hujan

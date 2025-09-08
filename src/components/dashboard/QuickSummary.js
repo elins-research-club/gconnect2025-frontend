@@ -16,28 +16,28 @@ export default function QuickSummary({ alerts, lastUpdatedTime, isConnected }) {
   return (
     <div className="bg-white/90 backdrop-blur-sm p-4 md:p-6 rounded-2xl shadow-xl border border-gray-300">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">
-        Quick Summary & System Status
+        Ringkasan Singkat & Status Sistem
       </h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <StatusItem
           icon={<Gauge className="w-5 text-green-600" />}
-          label="Connection"
-          value={isConnected ? "Online" : "Demo"}
+          label="Koneksi"
+          value={isConnected ? "Online" : "Tidak Terhubung"}
         />
         <StatusItem
           icon={<Zap className="w-5 text-black" />}
-          label="Data Source"
+          label="Sumber Data"
           value="PkM Lab Sensor"
         />
         <StatusItem
           icon={<BellRing className="w-5 text-rose-600" />}
-          label="Active Alerts"
+          label="Pemberitahuan"
           value={`${activeAlerts.length} (${dangerAlerts.length}D/${warningAlerts.length}W)`}
         />
         <StatusItem
           icon={<Clock className="w-5 text-gray-600" />}
-          label="Last Update"
+          label="Update Terakhir"
           value={lastUpdatedTime || "Loading..."}
         />
       </div>
@@ -76,14 +76,14 @@ export default function QuickSummary({ alerts, lastUpdatedTime, isConnected }) {
       )}
 
       <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-        💡 <strong>System Info:</strong> Using PkM Lab sensor at Sringharjo for
-        weather data.
+        💡<strong>Informasi Sistem:</strong> Menggunakan sensor PkM Lab di
+        Sringharjo untuk data cuaca.
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mt-4">
         <Link href="/dashboard/history" className="flex-1">
           <button className="w-full bg-sky-300 hover:bg-sky-200 duration-300 text-white text-sm font-bold py-2 rounded-md cursor-pointer">
-            View Full Report
+            Lihat Laporan Lengkap
           </button>
         </Link>
         <Link href="/dashboard/thresholds" className="flex-1">
@@ -95,7 +95,7 @@ export default function QuickSummary({ alerts, lastUpdatedTime, isConnected }) {
             } `}
           >
             <Settings className="inline w-4 h-4 mr-2" />
-            {activeAlerts.length > 0 ? "Manage Alerts" : "Settings"}
+            {activeAlerts.length > 0 ? "Pengaturan Thresholds" : "Pengaturan"}
           </button>
         </Link>
       </div>

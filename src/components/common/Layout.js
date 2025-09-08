@@ -1,33 +1,275 @@
-// src/components/common/Layout.js - Corrected with centered animation
+// src/components/common/Layout.js - Background awan vector
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 
-const VideoBackground = () => {
+const CloudBackground = () => {
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="w-full h-full object-cover"
-        style={{
-          // Method 1: Slow down playback speed (0.5 = half speed, 0.25 = quarter speed)
-          transform: "scale(1.1)", // Optional: slight scale to avoid borders
-          filter: "brightness(1.2)", // Optional: adjust brightness
-        }}
-        // Method 2: Use playbackRate (requires ref)
-        ref={(video) => {
-          if (video) {
-            video.playbackRate = 0.75; // 0.5 = half speed, 0.25 = quarter speed
-          }
-        }}
+    <div
+      className="absolute inset-0 z-0 overflow-hidden"
+      style={{ backgroundColor: "#d1ffff" }}
+    >
+      <svg
+        className="w-full h-full"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1400 800"
+        preserveAspectRatio="xMidYMid slice"
       >
-        <source src="/video/sky-1.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+        <defs>
+          {/* Cloud pattern untuk variasi bentuk */}
+          <g id="cloud1">
+            <ellipse
+              cx="70"
+              cy="40"
+              rx="70"
+              ry="40"
+              fill="white"
+              opacity="0.8"
+            />
+            <ellipse
+              cx="42"
+              cy="40"
+              rx="49"
+              ry="35"
+              fill="white"
+              opacity="0.8"
+            />
+            <ellipse
+              cx="98"
+              cy="40"
+              rx="56"
+              ry="39"
+              fill="white"
+              opacity="0.8"
+            />
+            <ellipse
+              cx="63"
+              cy="21"
+              rx="35"
+              ry="25"
+              fill="white"
+              opacity="0.8"
+            />
+            <ellipse
+              cx="91"
+              cy="17"
+              rx="39"
+              ry="28"
+              fill="white"
+              opacity="0.8"
+            />
+          </g>
+
+          <g id="cloud2">
+            <ellipse
+              cx="56"
+              cy="35"
+              rx="56"
+              ry="35"
+              fill="white"
+              opacity="0.7"
+            />
+            <ellipse
+              cx="35"
+              cy="35"
+              rx="39"
+              ry="28"
+              fill="white"
+              opacity="0.7"
+            />
+            <ellipse
+              cx="77"
+              cy="35"
+              rx="45"
+              ry="31"
+              fill="white"
+              opacity="0.7"
+            />
+            <ellipse
+              cx="56"
+              cy="17"
+              rx="31"
+              ry="21"
+              fill="white"
+              opacity="0.7"
+            />
+          </g>
+
+          <g id="cloud3">
+            <ellipse
+              cx="49"
+              cy="28"
+              rx="49"
+              ry="28"
+              fill="white"
+              opacity="0.9"
+            />
+            <ellipse
+              cx="28"
+              cy="28"
+              rx="35"
+              ry="21"
+              fill="white"
+              opacity="0.9"
+            />
+            <ellipse
+              cx="70"
+              cy="28"
+              rx="42"
+              ry="25"
+              fill="white"
+              opacity="0.9"
+            />
+            <ellipse
+              cx="49"
+              cy="11"
+              rx="25"
+              ry="17"
+              fill="white"
+              opacity="0.9"
+            />
+          </g>
+
+          <g id="cloud4">
+            <ellipse
+              cx="63"
+              cy="39"
+              rx="63"
+              ry="39"
+              fill="white"
+              opacity="0.6"
+            />
+            <ellipse
+              cx="39"
+              cy="39"
+              rx="45"
+              ry="31"
+              fill="white"
+              opacity="0.6"
+            />
+            <ellipse
+              cx="87"
+              cy="39"
+              rx="49"
+              ry="35"
+              fill="white"
+              opacity="0.6"
+            />
+            <ellipse
+              cx="63"
+              cy="20"
+              rx="34"
+              ry="22"
+              fill="white"
+              opacity="0.6"
+            />
+            <ellipse
+              cx="84"
+              cy="14"
+              rx="28"
+              ry="20"
+              fill="white"
+              opacity="0.6"
+            />
+          </g>
+
+          <g id="smallCloud">
+            <ellipse
+              cx="35"
+              cy="21"
+              rx="35"
+              ry="21"
+              fill="white"
+              opacity="0.5"
+            />
+            <ellipse
+              cx="21"
+              cy="21"
+              rx="25"
+              ry="17"
+              fill="white"
+              opacity="0.5"
+            />
+            <ellipse
+              cx="49"
+              cy="21"
+              rx="28"
+              ry="18"
+              fill="white"
+              opacity="0.5"
+            />
+            <ellipse
+              cx="35"
+              cy="8"
+              rx="17"
+              ry="11"
+              fill="white"
+              opacity="0.5"
+            />
+          </g>
+        </defs>
+
+        {/* Baris pertama awan */}
+        <use href="#cloud1" x="50" y="50" transform="scale(1.2)" />
+        <use href="#cloud2" x="250" y="30" transform="scale(0.8)" />
+        <use href="#cloud3" x="450" y="70" transform="scale(1.5)" />
+        <use href="#cloud4" x="650" y="40" transform="scale(1.0)" />
+        <use href="#cloud1" x="850" y="80" transform="scale(1.3)" />
+        <use href="#smallCloud" x="1050" y="60" transform="scale(1.1)" />
+        <use href="#cloud2" x="1250" y="35" transform="scale(0.9)" />
+
+        {/* Baris kedua awan */}
+        <use href="#cloud3" x="100" y="180" transform="scale(1.1)" />
+        <use href="#smallCloud" x="300" y="160" transform="scale(0.7)" />
+        <use href="#cloud4" x="500" y="200" transform="scale(1.4)" />
+        <use href="#cloud1" x="700" y="170" transform="scale(0.9)" />
+        <use href="#cloud2" x="900" y="190" transform="scale(1.2)" />
+        <use href="#cloud3" x="1100" y="150" transform="scale(1.0)" />
+        <use href="#smallCloud" x="1300" y="180" transform="scale(0.8)" />
+
+        {/* Baris ketiga awan */}
+        <use href="#cloud4" x="0" y="300" transform="scale(1.0)" />
+        <use href="#cloud2" x="200" y="280" transform="scale(1.3)" />
+        <use href="#smallCloud" x="400" y="320" transform="scale(0.9)" />
+        <use href="#cloud1" x="600" y="290" transform="scale(1.1)" />
+        <use href="#cloud3" x="800" y="310" transform="scale(1.4)" />
+        <use href="#cloud4" x="1000" y="270" transform="scale(0.8)" />
+        <use href="#cloud2" x="1200" y="300" transform="scale(1.2)" />
+
+        {/* Baris keempat awan */}
+        <use href="#cloud1" x="150" y="420" transform="scale(1.3)" />
+        <use href="#smallCloud" x="350" y="400" transform="scale(0.6)" />
+        <use href="#cloud3" x="550" y="440" transform="scale(1.0)" />
+        <use href="#cloud4" x="750" y="410" transform="scale(1.2)" />
+        <use href="#cloud2" x="950" y="430" transform="scale(0.9)" />
+        <use href="#cloud1" x="1150" y="400" transform="scale(1.1)" />
+
+        {/* Baris kelima awan */}
+        <use href="#cloud2" x="50" y="550" transform="scale(1.4)" />
+        <use href="#cloud4" x="300" y="530" transform="scale(1.0)" />
+        <use href="#smallCloud" x="500" y="570" transform="scale(0.8)" />
+        <use href="#cloud3" x="700" y="540" transform="scale(1.2)" />
+        <use href="#cloud1" x="900" y="560" transform="scale(0.9)" />
+        <use href="#cloud2" x="1100" y="530" transform="scale(1.3)" />
+
+        {/* Baris keenam awan */}
+        <use href="#smallCloud" x="100" y="680" transform="scale(0.7)" />
+        <use href="#cloud1" x="350" y="660" transform="scale(1.1)" />
+        <use href="#cloud4" x="550" y="690" transform="scale(1.5)" />
+        <use href="#cloud3" x="800" y="670" transform="scale(0.8)" />
+        <use href="#cloud2" x="1000" y="680" transform="scale(1.0)" />
+        <use href="#smallCloud" x="1250" y="650" transform="scale(0.9)" />
+
+        {/* Awan tambahan untuk mengisi celah */}
+        <use href="#smallCloud" x="1350" y="120" transform="scale(0.6)" />
+        <use href="#smallCloud" x="-20" y="220" transform="scale(0.8)" />
+        <use href="#smallCloud" x="1320" y="380" transform="scale(0.7)" />
+        <use href="#smallCloud" x="-30" y="480" transform="scale(0.9)" />
+        <use href="#smallCloud" x="1340" y="520" transform="scale(0.8)" />
+        <use href="#smallCloud" x="25" y="720" transform="scale(1.0)" />
+        <use href="#smallCloud" x="1300" y="750" transform="scale(0.7)" />
+      </svg>
     </div>
   );
 };
@@ -59,34 +301,14 @@ const Layout = ({ children, title }) => {
 
   return (
     <div className="flex min-h-screen relative bg-gray-50 dark:bg-background-DEFAULT">
-      {/* Background Video */}
-      <VideoBackground />
-      {/* Background SVG Waves - Posisi di tengah
-      <div className="absolute inset-0 z-0 hidden lg:block overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg
-            className="wave-animation w-full h-auto "
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1440 320"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <path
-              fill="rgb(224, 231, 255)" // Warna gelombang pertama (light indigo)
-              fillOpacity="0.8"
-              d="M0,192L48,181.3C96,171,192,149,288,160C384,171,480,213,576,218.7C672,224,768,192,864,176C960,160,1056,160,1152,181.3C1248,203,1344,245,1392,266.7L1440,288L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            ></path>
-            <path
-              fill="rgb(199, 210, 254)" // Warna gelombang kedua (indigo)
-              fillOpacity="0.5"
-              d="M0,224L48,202.7C96,181,192,139,288,144C384,149,480,203,576,218.7C672,235,768,213,864,213.3C960,213,1056,235,1152,240C1248,245,1344,235,1392,229.3L1440,224L1440,320L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            ></path>
-          </svg>
-        </div>
-      </div> */}
+      {/* Background Awan */}
+      <CloudBackground />
+
       {/* Head untuk title halaman */}
       <Head>
         <title>{title}</title>
       </Head>
+
       {/* Overlay untuk mobile */}
       {isMobile && !isCollapsed && (
         <div
@@ -94,6 +316,7 @@ const Layout = ({ children, title }) => {
           onClick={() => setIsCollapsed(true)}
         />
       )}
+
       {/* Sidebar - Fix: Gunakan fixed dan top-0 untuk sidebar mobile */}
       <div
         className={`fixed left-0 top-0 z-50 h-screen transition-all duration-300 ease-in-out ${
@@ -106,6 +329,7 @@ const Layout = ({ children, title }) => {
           isMobile={isMobile}
         />
       </div>
+
       {/* Main Content dengan z-index di atas background */}
       {/* Fix: Tambahkan `ml-0` untuk mobile dan perbaiki margin desktop */}
       <div
@@ -138,12 +362,14 @@ const Layout = ({ children, title }) => {
             </div>
           </div>
         )}
+
         {/* Konten Halaman */}
         <main
           className={`flex-1 p-3 md:p-5 transition-all duration-300 ease-in-out`}
         >
           <div className="animate-fadeIn">{children}</div>
         </main>
+
         {/* Footer */}
         <Footer />
       </div>

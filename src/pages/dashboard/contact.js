@@ -21,8 +21,8 @@ export default function ContactPage() {
               erc.elinsugm@gmail.com
             </p>
             <p className="flex items-center text-lg">
-              <Phone className="mr-3 w-6 h-6 text-sky-300" /> +62 811-1602-901
-              (Jesslyne)
+              <Phone className="mr-3 w-6 h-6 text-sky-300" /> +62 813-2528-4899
+              (Imki)
             </p>
             <p className="flex items-center text-lg">
               <MapPin className="mr-3 w-10 h-10 text-sky-300" /> Gedung C,

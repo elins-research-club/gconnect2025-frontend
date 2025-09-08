@@ -17,7 +17,8 @@ import {
   Mail,
   Phone,
   MapPin,
-  MessageCircle, // Menggunakan ikon untuk halaman kontak
+  MessageCircle,
+  BookOpenText,
 } from "lucide-react";
 
 // The GConnectIcon component has been removed as requested.
@@ -48,8 +49,9 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
   // Menambahkan link ke halaman kontak baru
   const publicNavItems = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
-    { name: "Contact", href: "/dashboard/contact", icon: MessageCircle },
-    { name: "Data History", href: "/dashboard/history", icon: History },
+    { name: "Kontak", href: "/dashboard/contact", icon: MessageCircle },
+    { name: "Panduan", href: "/dashboard/panduan", icon: BookOpenText },
+    { name: "Riwayat Data", href: "/dashboard/history", icon: History },
   ];
 
   // Menggabungkan item navigasi berdasarkan status autentikasi
@@ -211,7 +213,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar, isMobile = false }) => {
                   isCollapsed ? "w-5 h-5" : "mr-2"
                 }`}
               />
-              {!isCollapsed && <span>Login</span>}
+              {!isCollapsed && <span>Masuk</span>}
             </button>
           </Link>
         )}
