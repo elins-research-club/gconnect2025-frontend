@@ -56,7 +56,7 @@ const Footer = () => {
             </div>
             <div className="transform transition-all duration-300 ease-in-out hover:-translate-y-2 hover:-rotate-12 cursor-pointer">
               <Image
-                src="/img/logo-Labelins.png"
+                src="/img/labelins-logo.png"
                 alt="Logo Lab Elins"
                 width={50}
                 height={50}

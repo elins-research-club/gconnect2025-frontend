@@ -38,7 +38,8 @@ export default function useWeatherDemo() {
     console.log("🔍 Raw data received:", rawData); // ✅ Debug log
 
     const processed = {
-      temperature: rawData.temperature,
+      temperature:
+        rawData.temperature != null ? rawData.temperature - 10 : null, // data dari database yang masuk dikurangi 10
       humidity: rawData.humidity,
       soilHumidity: rawData.soil_moisture,
       windSpeed: rawData.wind_speed
