@@ -37,7 +37,7 @@ export default function SensorCard({
   const formatDisplayValue = (value) => {
     // Handle boolean values (rain detection)
     if (typeof value === "boolean") {
-      return value ? "Yes" : "No";
+      return value ? "Ya" : "Tidak";
     }
 
     // Handle undefined/null values

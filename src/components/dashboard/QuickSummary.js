@@ -76,8 +76,8 @@ export default function QuickSummary({ alerts, lastUpdatedTime, isConnected }) {
       )}
 
       <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-600">
-        💡<strong>Informasi Sistem:</strong> Menggunakan sensor PkM Lab di
-        Sringharjo untuk data cuaca.
+        💡<strong>Informasi Sistem:</strong> Menggunakan sensor PkM Lab Sistem Komputer Jaringan dan Lab ELINS di
+        Sriharjo untuk data cuaca.
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mt-4">

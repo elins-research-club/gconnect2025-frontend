@@ -5,7 +5,7 @@ export function formatValue(value, decimals = 2) {
 
   // ✅ Handle boolean values (for rain detection, etc.)
   if (typeof value === "boolean") {
-    return value ? "Yes" : "No";
+    return value ? "Ya" : "Tidak";
   }
 
   // ✅ Handle numbers

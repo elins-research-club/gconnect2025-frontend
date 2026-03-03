@@ -6,8 +6,8 @@ const AuthContext = createContext();
 
 // Kredensial hardcode untuk demo. Dalam aplikasi nyata, ini harus dari database.
 const HARDCODED_USER = {
-  email: "admin@example.com",
-  password: "password123",
+  email: "admin@mail.com",
+  password: "admin123",
 };
 
 export const AuthProvider = ({ children }) => {

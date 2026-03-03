@@ -47,7 +47,8 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-600">
-            PkM Lab SKJ X Lab Elins Dashboard
+            PkM Lab Sistem Komputer Jaringan & Lab ELINS
+            <h2>Universitas Gadjah Mada</h2> 
             {sensorData?.location && (
               <span className="block text-sm font-normal text-gray-500 mt-1">
                 📍 {sensorData.location}

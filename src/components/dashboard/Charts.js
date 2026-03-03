@@ -175,6 +175,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler
 } from "chart.js";
 
 ChartJS.register(
@@ -184,7 +185,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 // Data dummy untuk demo
@@ -484,7 +486,7 @@ export default function FlexibleCharts() {
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            Per Hari
+            Harian
           </button>
           <button
             onClick={() => setTimeRange("week")}
@@ -494,7 +496,7 @@ export default function FlexibleCharts() {
                 : "text-gray-600 hover:bg-gray-100"
             }`}
           >
-            Per Minggu
+            Mingguan
           </button>
         </div>
       </div>

@@ -22,8 +22,8 @@ export default function useWeatherDemo() {
   const intervalRef = useRef(null);
 
   const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL || "https://api.pkmlab.my.id/api/v1";
-  const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "wss://api.pkmlab.my.id/ws";
+    process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
+  const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000/ws";
   const MAX_RECONNECT_ATTEMPTS = 5;
 
   const contextCallbacks = useRef({ addToHistory, setCurrentData });
@@ -52,7 +52,7 @@ export default function useWeatherDemo() {
       lightIntensity: rawData.light_intensity,
       id: rawData.id,
       timestamp: rawData.timestamp || new Date().toISOString(),
-      location: "PKM Lab Sensor",
+      location: "Sriharjo, Imogiri, Kab Bantul",
     };
 
     console.log("✅ Processed data:", processed); // ✅ Debug log
@@ -93,7 +93,10 @@ export default function useWeatherDemo() {
     try {
       const [latestRes, historyRes] = await Promise.all([
         fetch(`${API_BASE}/data/latest`, {
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "X-API-KEY": "gconnect-2025"
+           },
         }),
         fetch(`${API_BASE}/data/history`, {
           headers: { "Content-Type": "application/json" },
